@@ -1,20 +1,20 @@
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+@file:OptIn(ExperimentalNativeApi::class, ExperimentalForeignApi::class)
 
-@Serializable
-private data class Message(
-    val topic: String,
-    val content: String,
-)
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.ExperimentalForeignApi
+import vlccore.VLC_EGENERIC
+import vlccore.vlc_object_t
+import kotlin.experimental.ExperimentalNativeApi
 
-private val PrettyPrintJson = Json {
-    prettyPrint = true
+@CName("k_open")
+@Suppress("unused")
+fun open(obj: CPointer<vlc_object_t>) : Int {
+    println("called open()")
+    return VLC_EGENERIC
 }
 
-fun main() {
-    val message = Message(
-        topic = "Kotlin/Native",
-        content = "Hello!"
-    )
-    println(PrettyPrintJson.encodeToString(message))
+@CName("k_close")
+@Suppress("unused")
+fun close(obj: CPointer<vlc_object_t>) {
+    println("called close()")
 }

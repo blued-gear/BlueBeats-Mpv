@@ -25,8 +25,12 @@ kotlin {
 
     nativeTarget.apply {
         binaries {
-            executable {
-                entryPoint = "main"
+            staticLib {}
+        }
+
+        compilations.getByName("main") {
+            cinterops {
+                val libvlccore by creating
             }
         }
     }
@@ -36,4 +40,31 @@ kotlin {
             implementation(libs.kotlinxSerializationJson)
         }
     }
+}
+
+tasks.create<Exec>("buildVlcModule") {
+    group = "build"
+    dependsOn("assemble")
+
+    workingDir(project.layout.projectDirectory.dir("plugin"))
+    commandLine("make", "clean", "build")
+}
+
+tasks.named("build") {
+    dependsOn("buildModule")
+}
+
+tasks.create<Copy>("copyVlcModuleToContainer") {
+    dependsOn("buildVlcModule")
+
+    from(project.layout.projectDirectory.dir("plugin").file("libbluebeats_plugin.so"))
+    into(project.layout.projectDirectory.dir("container").dir("plugins"))
+}
+
+tasks.create<Exec>("runContainer") {
+    group = "run"
+    dependsOn("copyVlcModuleToContainer")
+
+    workingDir(project.layout.projectDirectory.dir("container"))
+    commandLine("./run.sh")
 }

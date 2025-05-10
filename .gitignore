@@ -1,5 +1,6 @@
 .gradle
 build/
+/.kotlin/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -43,3 +44,10 @@ bin/
 
 
 /.idea/dictionaries/
+
+/plugin/*.o
+/plugin/*.so
+
+/container/media
+/container/plugins
+/container/log.txt

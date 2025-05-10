@@ -1,0 +1,10 @@
+FROM docker.io/library/fedora:42
+
+RUN dnf install -y vlc
+
+RUN useradd -u 1001 vlc
+USER 1001
+
+ENV XDG_SESSION_TYPE=wayland
+ENV WAYLAND_DISPLAY=/tmp/wayland-0
+ENV XDG_RUNTIME_DIR=/tmp

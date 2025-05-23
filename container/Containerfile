@@ -1,8 +1,8 @@
 FROM docker.io/library/fedora:42
 
-RUN dnf install -y vlc
+RUN dnf install -y mpv libxcrypt-compat
 
-RUN useradd -u 1001 vlc
+RUN useradd -u 1001 mpv
 USER 1001
 
 ENV XDG_SESSION_TYPE=wayland

@@ -63,6 +63,7 @@ kotlin {
 
             implementation(libs.kotlinxSerializationJson)
             implementation(libs.kotlinxSerializationJsonIo)
+            implementation(libs.kotlinxIo)
         }
     }
 }

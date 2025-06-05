@@ -45,9 +45,9 @@ bin/
 
 /.idea/dictionaries/
 
-/plugin/*.o
-/plugin/*.so
-
 /container/media
 /container/plugins
 /container/log.txt
+
+/Taglib/TaglibCpp/src/cpp/
+/Taglib/TaglibCpp/src/headers/

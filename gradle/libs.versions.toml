@@ -3,6 +3,8 @@ kotlin = "2.1.20"
 kotlinxSerialization = "1.8.0"
 kotlinxIo = "0.7.0"
 mpv = "0.40.0"
+taglib = "2.1"
+utfcpp = "4.0.6"
 
 [libraries]
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }

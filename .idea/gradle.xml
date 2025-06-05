@@ -8,6 +8,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Plugin" />
+            <option value="$PROJECT_DIR$/Taglib" />
+            <option value="$PROJECT_DIR$/Taglib/TaglibCpp" />
+            <option value="$PROJECT_DIR$/Taglib/TaglibGlue" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -3,6 +3,7 @@ package apps.chocolatecakecodes.bluebeats.mpv.mpvevents
 import apps.chocolatecakecodes.bluebeats.mpv.PlaylistRunner
 import apps.chocolatecakecodes.bluebeats.mpv.PluginContext
 import apps.chocolatecakecodes.bluebeats.mpv.exception.MpvException
+import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.pointed
@@ -11,8 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class)
 internal class EventHandler(
     private val pluginContext: PluginContext
 ) {
@@ -23,26 +26,27 @@ internal class EventHandler(
         PlaylistRunner is a consumer
      */
 
-    private var running = false
+    private var running = AtomicBoolean(false)
 
     fun startLoop() {
-        running = true
+        running.store(true)
         registerEvents()
         runLoop()
     }
 
     fun stopLoop() {
-        running = false
+        running.store(false)
     }
 
     private fun registerEvents() {
         mpv.mpv_hook_add(pluginContext.mpvCtx, 0UL, "on_load_fail", 1)
             .checkReturnCode("register hook on_load_fail")
+        mpv.mpv_request_event(pluginContext.mpvCtx, mpv.MPV_EVENT_SHUTDOWN, 1)
     }
 
     private fun runLoop() {
         val looper = CoroutineScope(Dispatchers.Default).launch {
-            while(running)
+            while(running.load())
                 processEvent()
         }
         runBlocking {
@@ -60,13 +64,17 @@ internal class EventHandler(
                     "on_load_fail" -> handleOnLoadFail(hookEvent)
                 }
             }
+
+            mpv.MPV_EVENT_SHUTDOWN -> {
+                stopLoop()
+            }
         }
     }
 
     private suspend fun handleOnLoadFail(event: CPointer<mpv.mpv_event_hook>) {
         try {
             val filePath = mpv.mpv_get_property_string(pluginContext.mpvCtx, "path")?.toKString()
-            println("#### got failed file: $filePath")
+            Logger.info("EventHandler", "got failed file: $filePath")
             if(filePath != null && filePath.endsWith(".bbdp"))
                 PlaylistRunner(pluginContext, filePath).run()
         } finally {

@@ -1,7 +1,10 @@
 package apps.chocolatecakecodes.bluebeats.mpv
 
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaLibrary
+import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
 import apps.chocolatecakecodes.bluebeats.mpv.serialisation.DynPl
 import apps.chocolatecakecodes.bluebeats.mpv.serialisation.Serializer
+import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -23,10 +26,13 @@ internal class PlaylistRunner(
             launch {
                 val pl = loadFile()
                 if(pl == null) {
-                    println("### failed to load bbdp file")
+                    Logger.error("PlaylistRunner", "failed to load bbdp file")
                     return@launch
                 }
-                println("### loaded file: $pl")
+
+                Logger.info("PlaylistRunner", "loaded file: $pl")
+
+                loadMediaDb(pl.mediaRoot)
             }
         }
     }
@@ -37,16 +43,22 @@ internal class PlaylistRunner(
             try {
                 return Serializer.json.decodeFromSource<DynPl>(source)
             } catch(e: Exception) {
-                println("### invalid bbdp file")
-                e.printStackTrace()
-
+                Logger.error("PlaylistRunner", "invalid bbdp file", e)
                 return null
             }
         }
     }
 
-    private fun loadMediaDb() {
+    private suspend fun loadMediaDb(rootPath: String) {
+        Logger.info("PlaylistRunner", "loading MediaLibrary")
+        val ml = MediaLibraryImpl(Path(rootPath))
+        MediaLibrary.Slot.INSTANCE = ml
+        ml.scan()
 
+        Logger.info("PlaylistRunner", "loaded MediaLibrary")
+        ml.getAllFiles().forEach {
+            println("   $it: ${it.type} , ${it.mediaTags} , ${it.userTags} , ${it.chapters}")
+        }
     }
 
     private fun startPlaylist() {

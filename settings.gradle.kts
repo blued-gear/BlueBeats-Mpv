@@ -6,3 +6,8 @@ pluginManagement {
 }
 
 rootProject.name = "BlueBeatsMpv"
+
+include("Plugin")
+include("Taglib")
+include("Taglib:TaglibCpp")
+include("Taglib:TaglibGlue")

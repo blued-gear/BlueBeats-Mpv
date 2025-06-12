@@ -1,8 +1,6 @@
 package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
 
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.GenericRule
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
+import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
 import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
 import kotlinx.serialization.Serializable
 
@@ -17,20 +15,23 @@ internal data class RuleGroupSerializable private constructor(
 
     companion object {
 
-        private fun packRule(rule: GenericRule): RuleSerializable {
+        private fun packRule(rule: GenericRule, ml: MediaLibraryImpl): RuleSerializable {
             return when(rule) {
-                is RuleGroup -> RuleGroupSerializable(rule)
-                is IncludeRule -> IncludeRuleSerializable(rule)
-                else -> throw AssertionError("incomplete testing for rule classes")
+                is RuleGroup -> RuleGroupSerializable(rule, ml)
+                is IncludeRule -> IncludeRuleSerializable(rule, ml)
+                is ID3TagsRule -> ID3TagsRuleSerializable(rule)
+                is RegexRule -> RegexRuleSerializable(rule)
+                is TimeSpanRule -> TimeSpanRuleSerializable(rule, ml)
+                is UsertagsRule -> UsertagsRuleSerializable(rule)
             }
         }
     }
 
-    constructor(rule: RuleGroup) : this(
+    constructor(rule: RuleGroup, ml: MediaLibraryImpl) : this(
         rule.id,
         ShareSerializable(rule.share),
         rule.combineWithAnd,
-        rule.getRules().map { RuleGroupItem(rule = packRule(it.first), negate = it.second) }
+        rule.getRules().map { RuleGroupItem(rule = packRule(it.first, ml), negate = it.second) }
     )
 
     override fun unpack(ml: MediaLibraryImpl) = RuleGroup(

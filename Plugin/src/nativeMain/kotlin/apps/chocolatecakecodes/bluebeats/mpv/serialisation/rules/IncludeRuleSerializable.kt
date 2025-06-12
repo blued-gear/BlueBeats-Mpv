@@ -17,10 +17,10 @@ internal data class IncludeRuleSerializable private constructor(
     val share: ShareSerializable,
 ) : RuleSerializable {
 
-    constructor(rule: IncludeRule) : this(
+    constructor(rule: IncludeRule, ml: MediaLibraryImpl) : this(
         rule.id,
-        rule.getDirs().map { Pair(it.first.path, it.second) },
-        rule.getFiles().map { it.path },
+        rule.getDirs().map { Pair(ml.relativizePath(it.first), it.second) },
+        rule.getFiles().map { ml.relativizePath(it) },
         ShareSerializable(rule.share)
     )
 

@@ -79,6 +79,10 @@ internal class MediaLibraryImpl(
         }
     }
 
+    fun relativizePath(media: MediaNode): String {
+        return media.path.removePrefix(root.toString()).removePrefix("/")
+    }
+
     private suspend fun scanDir(path: Path, parent: MediaDir?): MediaDir {
         val dir = MediaDirImpl(path, parent)
 

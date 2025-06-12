@@ -34,8 +34,6 @@ internal class PlaylistRunner(
     private val plFile: String,
 ) : EventConsumer {
 
-    //TODO fix DynamicPlaylistIterator; it will crash if no media could be collected
-
     override val requestedEvents: Set<UInt> = setOf(mpv.MPV_EVENT_START_FILE)
 
     private val player = PlayerControl(pluginContext)
@@ -48,25 +46,8 @@ internal class PlaylistRunner(
     suspend fun start() {
         pluginContext.eventHandler.registerEventConsumer(this)
 
-        val pl = loadFile()
-        if(pl == null) {
-            Logger.error("PlaylistRunner", "failed to load bbdp file")
-            return
-        }
-        Logger.info("PlaylistRunner", "loaded bbdp file")
-
-        val ml = loadMediaLib(pl.mediaRoot)
-        loadPlaylist(pl, ml).let { (pl, iter) ->
-            this.pl = pl
-            this.plIter = iter
-        }
-
-        // need to start a file immediately or else player will exit
-        player.useStreamOpenProp = true
-        player.playMedia(plIter.currentItem().file!!, true)
-        player.useStreamOpenProp = false
-
-        fillPlaylist()
+        initPlaylist()
+        startPlayback()
     }
 
     override suspend fun onEvent(eventId: UInt, event: CPointer<mpv_event>) {
@@ -79,6 +60,21 @@ internal class PlaylistRunner(
 
     private suspend fun stop() {
         pluginContext.eventHandler.deregisterEventConsumer(this)
+    }
+
+    private suspend fun initPlaylist() {
+        val pl = loadFile()
+        if(pl == null) {
+            Logger.error("PlaylistRunner", "failed to load bbdp file")
+            return
+        }
+        Logger.info("PlaylistRunner", "loaded bbdp file")
+
+        val ml = loadMediaLib(pl.mediaRoot)
+        loadPlaylist(pl, ml).let { (pl, iter) ->
+            this.pl = pl
+            this.plIter = iter
+        }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -111,8 +107,24 @@ internal class PlaylistRunner(
         return Pair(pl, iter)
     }
 
+    private suspend fun startPlayback() {
+        // need to start a file immediately or else player will exit
+        val firstItem = plIter.currentItem()
+        if(firstItem is PlaylistItem.INVALID) {
+            Logger.error("PlaylistRunner", "DynamicPlaylist is empty; stopping runner")
+            stop()
+            return
+        }
+        player.useStreamOpenProp = true
+        player.playMedia(firstItem.file!!, true)
+        player.useStreamOpenProp = false
+
+        fillPlaylist()
+    }
+
     private suspend fun onFileStarted() {
         lastPlayedItem?.castToOrNull<TimeSpanItem>()?.runningController?.unregister()
+
         if(!isOwnPlaylist()) {
             Logger.info("PlaylistRunner", "playlist changed; stopping runner")
             stop()
@@ -148,6 +160,10 @@ internal class PlaylistRunner(
 
             repeat(pl.iterationSize) {
                 val item = plIter.nextItem()
+                if(item is PlaylistItem.INVALID) {
+                    Logger.warn("PlaylistRunner", "got invalid PlaylistItem")
+                    return@repeat
+                }
                 plItems.add(item)
 
                 val loadMode: String

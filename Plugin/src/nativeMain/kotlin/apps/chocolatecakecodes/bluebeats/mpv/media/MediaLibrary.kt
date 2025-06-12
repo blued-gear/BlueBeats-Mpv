@@ -3,6 +3,8 @@ package apps.chocolatecakecodes.bluebeats.mpv.media
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaLibrary
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
+import apps.chocolatecakecodes.bluebeats.blueplaylists.utils.castToOrNull
 import apps.chocolatecakecodes.bluebeats.mpv.taglib.TagParser
 import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -65,6 +67,15 @@ internal class MediaLibraryImpl(
             tags.contains(it.key)
         }.values.flatten().toHashSet().associateWith {
             it.userTags.intersect(tags).toList()
+        }
+    }
+
+    fun resolvePath(path: String): MediaNode? {
+        return path.split('/').fold(rootDir as MediaNode?) { dir, name ->
+            dir?.castToOrNull<MediaDir>()?.let {
+                it.getDirs().find { it.name == name }
+                    ?: it.getFiles().find { it.name == name }
+            }
         }
     }
 
@@ -133,7 +144,7 @@ internal class MediaLibraryImpl(
     }
 
     private fun putFileInId3tagIndex(tagType: String, tagValue: String, file: MediaFile) {
-        filesById3Tag.getOrPut(tagValue, { mutableMapOf() })
+        filesById3Tag.getOrPut(tagType, { mutableMapOf() })
             .getOrPut(tagValue, { mutableListOf() })
             .add(file)
     }

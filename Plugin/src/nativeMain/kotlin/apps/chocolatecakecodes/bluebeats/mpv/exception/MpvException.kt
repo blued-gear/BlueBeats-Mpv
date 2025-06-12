@@ -1,3 +1,3 @@
 package apps.chocolatecakecodes.bluebeats.mpv.exception
 
-internal class MpvException(msg: String) : Exception(msg)
+internal open class MpvException(msg: String) : Exception(msg)

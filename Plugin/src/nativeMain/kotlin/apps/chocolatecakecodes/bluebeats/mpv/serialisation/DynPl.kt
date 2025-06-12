@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class DynPl(
     val mediaRoot: String,
+    val iterationSize: Int,
     val rootRule: RuleGroupSerializable,
 )

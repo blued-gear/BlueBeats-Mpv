@@ -1,8 +1,11 @@
 package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.GenericRule
+import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import kotlinx.serialization.Serializable
 
-internal interface RuleSerializable {
+@Serializable
+internal sealed interface RuleSerializable {
 
-    fun unpack(): GenericRule
+    fun unpack(ml: MediaLibraryImpl): GenericRule
 }

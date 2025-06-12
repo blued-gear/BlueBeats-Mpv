@@ -1,15 +1,13 @@
 package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
 
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
+import apps.chocolatecakecodes.bluebeats.blueplaylists.utils.castToOrNull
+import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import kotlinx.serialization.Serializable
 
-/*
-override val id: Long,
-    override val isOriginal: Boolean,
-    dirs: Set<DirPathInclude> = emptySet(),
-    files: Set<MediaFile> = emptySet(),
-    initialShare: Rule.Share
- */
 @Serializable
 @ConsistentCopyVisibility
 internal data class IncludeRuleSerializable private constructor(
@@ -19,7 +17,6 @@ internal data class IncludeRuleSerializable private constructor(
     val share: ShareSerializable,
 ) : RuleSerializable {
 
-    //TODO relativize paths
     constructor(rule: IncludeRule) : this(
         rule.id,
         rule.getDirs().map { Pair(it.first.path, it.second) },
@@ -27,11 +24,22 @@ internal data class IncludeRuleSerializable private constructor(
         ShareSerializable(rule.share)
     )
 
-    override fun unpack() = IncludeRule(
-        id,
-        true,
-        emptySet(),
-        emptySet(),
-        share.unpack()
-    )
+    override fun unpack(ml: MediaLibraryImpl): IncludeRule {
+        val resolvedDirs = dirs.mapNotNull { (path, deep) ->
+            ml.resolvePath(path)?.castToOrNull<MediaDir>()?.let {
+                Pair(it, deep)
+            } ?: let {
+                Logger.warn("IncludeRuleSerializable", "unable to resolve dir $path")
+                null
+            }
+        }.toSet()
+        val resolvedFiles = files.mapNotNull { path ->
+            ml.resolvePath(path)?.castToOrNull<MediaFile>() ?: let {
+                Logger.warn("IncludeRuleSerializable", "unable to resolve file $path")
+                null
+            }
+        }.toSet()
+
+        return IncludeRule(id, true, resolvedDirs, resolvedFiles, share.unpack())
+    }
 }

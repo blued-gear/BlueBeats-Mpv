@@ -3,6 +3,7 @@ package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.GenericRule
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
+import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +12,7 @@ internal data class RuleGroupSerializable private constructor(
     val id: Long,
     val share: ShareSerializable,
     val combineWithAnd: Boolean,
-    val rules: List<Pair<RuleSerializable, Boolean>>
+    val rules: List<RuleGroupItem>
 ) : RuleSerializable {
 
     companion object {
@@ -29,14 +30,20 @@ internal data class RuleGroupSerializable private constructor(
         rule.id,
         ShareSerializable(rule.share),
         rule.combineWithAnd,
-        rule.getRules().map { Pair(packRule(it.first), it.second) }
+        rule.getRules().map { RuleGroupItem(rule = packRule(it.first), negate = it.second) }
     )
 
-    override fun unpack() = RuleGroup(
+    override fun unpack(ml: MediaLibraryImpl) = RuleGroup(
         id,
         true,
         share.unpack(),
         combineWithAnd,
-        rules.map { Pair(it.first.unpack(), it.second) }
+        rules.map { Pair(it.rule.unpack(ml), it.negate) }
     )
 }
+
+@Serializable
+internal data class RuleGroupItem(
+    val negate: Boolean,
+    val rule: RuleSerializable,
+)

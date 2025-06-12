@@ -30,7 +30,11 @@ internal object Logger : Logger {
         }
     }
 
+    fun debug(tag: String, message: String) {
+        printMsg("DEBUG: $tag: $message")
+    }
+
     private fun printMsg(str: String) {
-        println("### BlueBeats: $str")
+        println("[BlueBeats] $str")
     }
 }

@@ -42,13 +42,13 @@ internal class PlayerControl(
      * @param time time in milliseconds
      */
     fun setTimePos(time: Long) {
-        MpvPropertyHelper.setLong(pluginContext.mpvCtx, "time-pos/full", time)
+        MpvPropertyHelper.setLong(pluginContext.mpvCtx, "time-pos", time / 1000)
     }
 
     /**
      * @return time in milliseconds
      */
     fun getTimePos(): Long {
-        return MpvPropertyHelper.getLong(pluginContext.mpvCtx, "time-pos/full")
+        return (MpvPropertyHelper.getDouble(pluginContext.mpvCtx, "time-pos/full") * 1000).toLong()
     }
 }

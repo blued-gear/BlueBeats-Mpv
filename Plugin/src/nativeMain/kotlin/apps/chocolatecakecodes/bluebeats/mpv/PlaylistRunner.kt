@@ -11,8 +11,9 @@ import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
 import apps.chocolatecakecodes.bluebeats.mpv.mpvevents.AsyncCommand
 import apps.chocolatecakecodes.bluebeats.mpv.mpvevents.EventConsumer
 import apps.chocolatecakecodes.bluebeats.mpv.player.PlayerControl
-import apps.chocolatecakecodes.bluebeats.mpv.serialisation.DynPl
-import apps.chocolatecakecodes.bluebeats.mpv.serialisation.Serializer
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.DynPl
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.Serializer
 import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import apps.chocolatecakecodes.bluebeats.mpv.utils.MpvPropertyHelper
 import kotlinx.cinterop.CPointer
@@ -99,7 +100,7 @@ internal class PlaylistRunner(
     }
 
     private fun loadPlaylist(serializedPl: DynPl, ml: MediaLibraryImpl): Pair<DynamicPlaylist, DynamicPlaylistIterator> {
-        val rootRule = serializedPl.rootRule.unpack(ml)
+        val rootRule = serializedPl.rootRule.unpack(FsTools(ml.rootDir!!))
         val pl = DynamicPlaylist(1, "Playlist", rootRule).apply {
             iterationSize = serializedPl.iterationSize
         }

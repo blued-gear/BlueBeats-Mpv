@@ -1,12 +1,12 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.ID3TagsRule
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class ID3TagsRuleSerializable private constructor(
+data class ID3TagsRuleSerializable private constructor(
     val id: Long,
     val tagType: String,
     val tagValues: Set<String>,
@@ -20,7 +20,7 @@ internal data class ID3TagsRuleSerializable private constructor(
         ShareSerializable(rule.share)
     )
 
-    override fun unpack(ml: MediaLibraryImpl): ID3TagsRule {
+    override fun unpack(fs: FsTools): ID3TagsRule {
         return ID3TagsRule(
             share.unpack(),
             true,

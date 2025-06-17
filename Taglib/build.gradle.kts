@@ -4,10 +4,6 @@ plugins {
 
 repositories {
     mavenCentral()
-
-    mavenLocal {
-        this.setUrl(rootProject.layout.projectDirectory.dir("../BluePlaylists/mavenrepo"))
-    }
 }
 
 group = "apps.chocolatecakecodes.bluebeats.mpv.internal"

@@ -1,11 +1,11 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Rule
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class ShareSerializable private constructor(
+data class ShareSerializable private constructor(
     val value: Float,
     val isRelative: Boolean
 ) {

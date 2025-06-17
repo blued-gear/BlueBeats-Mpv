@@ -1,12 +1,12 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class RuleGroupSerializable private constructor(
+data class RuleGroupSerializable private constructor(
     val id: Long,
     val share: ShareSerializable,
     val combineWithAnd: Boolean,
@@ -15,36 +15,36 @@ internal data class RuleGroupSerializable private constructor(
 
     companion object {
 
-        private fun packRule(rule: GenericRule, ml: MediaLibraryImpl): RuleSerializable {
+        private fun packRule(rule: GenericRule, fs: FsTools): RuleSerializable {
             return when(rule) {
-                is RuleGroup -> RuleGroupSerializable(rule, ml)
-                is IncludeRule -> IncludeRuleSerializable(rule, ml)
+                is RuleGroup -> RuleGroupSerializable(rule, fs)
+                is IncludeRule -> IncludeRuleSerializable(rule, fs)
                 is ID3TagsRule -> ID3TagsRuleSerializable(rule)
                 is RegexRule -> RegexRuleSerializable(rule)
-                is TimeSpanRule -> TimeSpanRuleSerializable(rule, ml)
+                is TimeSpanRule -> TimeSpanRuleSerializable(rule, fs)
                 is UsertagsRule -> UsertagsRuleSerializable(rule)
             }
         }
     }
 
-    constructor(rule: RuleGroup, ml: MediaLibraryImpl) : this(
+    constructor(rule: RuleGroup, fs: FsTools) : this(
         rule.id,
         ShareSerializable(rule.share),
         rule.combineWithAnd,
-        rule.getRules().map { RuleGroupItem(rule = packRule(it.first, ml), negate = it.second) }
+        rule.getRules().map { RuleGroupItem(rule = packRule(it.first, fs), negate = it.second) }
     )
 
-    override fun unpack(ml: MediaLibraryImpl) = RuleGroup(
+    override fun unpack(fs: FsTools) = RuleGroup(
         id,
         true,
         share.unpack(),
         combineWithAnd,
-        rules.map { Pair(it.rule.unpack(ml), it.negate) }
+        rules.map { Pair(it.rule.unpack(fs), it.negate) }
     )
 }
 
 @Serializable
-internal data class RuleGroupItem(
+data class RuleGroupItem(
     val negate: Boolean,
     val rule: RuleSerializable,
 )

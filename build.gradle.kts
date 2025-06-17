@@ -2,6 +2,14 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
 }
 
+allprojects {
+    repositories {
+        mavenLocal {
+            this.setUrl(rootProject.layout.projectDirectory.dir("../BluePlaylists/mavenrepo"))
+        }
+    }
+}
+
 tasks.create<Copy>("copyPluginToContainer") {
     val useDebug = true
 

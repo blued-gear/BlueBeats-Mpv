@@ -1,16 +1,16 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.log.Logger
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.TimeSpanRule
 import apps.chocolatecakecodes.bluebeats.blueplaylists.utils.castToOrNull
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
-import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class TimeSpanRuleSerializable private constructor(
+data class TimeSpanRuleSerializable private constructor(
     val id: Long,
     val file: String,
     val startMs: Long,
@@ -19,18 +19,18 @@ internal data class TimeSpanRuleSerializable private constructor(
     val share: ShareSerializable,
 ) : RuleSerializable {
 
-    constructor(rule: TimeSpanRule, ml: MediaLibraryImpl) : this(
+    constructor(rule: TimeSpanRule, fs: FsTools) : this(
         rule.id,
-        ml.relativizePath(rule.file),
+        fs.relativizePath(rule.file),
         rule.startMs,
         rule.endMs,
         rule.description,
         ShareSerializable(rule.share)
     )
 
-    override fun unpack(ml: MediaLibraryImpl): TimeSpanRule {
-        val file = ml.resolvePath(this.file)?.castToOrNull<MediaFile>() ?: let {
-            Logger.warn("TimeSpanRuleSerializable", "unable to resolve file ${this.file}")
+    override fun unpack(fs: FsTools): TimeSpanRule {
+        val file = fs.resolvePath(this.file)?.castToOrNull<MediaFile>() ?: let {
+            Logger.Slot.INSTANCE.warn("TimeSpanRuleSerializable", "unable to resolve file ${this.file}")
             MediaNode.INVALID_FILE
         }
 

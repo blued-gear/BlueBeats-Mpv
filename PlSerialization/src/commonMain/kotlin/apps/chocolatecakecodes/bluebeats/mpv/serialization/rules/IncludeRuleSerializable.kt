@@ -1,41 +1,41 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.log.Logger
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
 import apps.chocolatecakecodes.bluebeats.blueplaylists.utils.castToOrNull
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
-import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class IncludeRuleSerializable private constructor(
+data class IncludeRuleSerializable private constructor(
     val id: Long,
     val dirs: List<Pair<String, Boolean>>,
     val files: List<String>,
     val share: ShareSerializable,
 ) : RuleSerializable {
 
-    constructor(rule: IncludeRule, ml: MediaLibraryImpl) : this(
+    constructor(rule: IncludeRule, fs: FsTools) : this(
         rule.id,
-        rule.getDirs().map { Pair(ml.relativizePath(it.first), it.second) },
-        rule.getFiles().map { ml.relativizePath(it) },
+        rule.getDirs().map { Pair(fs.relativizePath(it.first), it.second) },
+        rule.getFiles().map { fs.relativizePath(it) },
         ShareSerializable(rule.share)
     )
 
-    override fun unpack(ml: MediaLibraryImpl): IncludeRule {
+    override fun unpack(fs: FsTools): IncludeRule {
         val resolvedDirs = dirs.mapNotNull { (path, deep) ->
-            ml.resolvePath(path)?.castToOrNull<MediaDir>()?.let {
+            fs.resolvePath(path)?.castToOrNull<MediaDir>()?.let {
                 Pair(it, deep)
             } ?: let {
-                Logger.warn("IncludeRuleSerializable", "unable to resolve dir $path")
+                Logger.Slot.INSTANCE.warn("IncludeRuleSerializable", "unable to resolve dir $path")
                 null
             }
         }.toSet()
         val resolvedFiles = files.mapNotNull { path ->
-            ml.resolvePath(path)?.castToOrNull<MediaFile>() ?: let {
-                Logger.warn("IncludeRuleSerializable", "unable to resolve file $path")
+            fs.resolvePath(path)?.castToOrNull<MediaFile>() ?: let {
+                Logger.Slot.INSTANCE.warn("IncludeRuleSerializable", "unable to resolve file $path")
                 null
             }
         }.toSet()

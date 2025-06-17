@@ -1,12 +1,12 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RegexRule
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class RegexRuleSerializable private constructor(
+data class RegexRuleSerializable private constructor(
     val id: Long,
     val attribute: RegexRule.Attribute,
     val regex: String,
@@ -20,7 +20,7 @@ internal data class RegexRuleSerializable private constructor(
         ShareSerializable(rule.share)
     )
 
-    override fun unpack(ml: MediaLibraryImpl): RegexRule {
+    override fun unpack(fs: FsTools): RegexRule {
         return RegexRule(
             id,
             true,

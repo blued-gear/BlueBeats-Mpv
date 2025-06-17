@@ -1,10 +1,10 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation
+package apps.chocolatecakecodes.bluebeats.mpv.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalSerializationApi::class)
-internal object Serializer {
+object Serializer {
 
     val json = Json {
         this.prettyPrint = true

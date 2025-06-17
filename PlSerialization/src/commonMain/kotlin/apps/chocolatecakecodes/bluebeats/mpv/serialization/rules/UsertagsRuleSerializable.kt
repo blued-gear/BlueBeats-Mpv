@@ -1,12 +1,12 @@
-package apps.chocolatecakecodes.bluebeats.mpv.serialisation.rules
+package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.UsertagsRule
-import apps.chocolatecakecodes.bluebeats.mpv.media.MediaLibraryImpl
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlinx.serialization.Serializable
 
 @Serializable
 @ConsistentCopyVisibility
-internal data class UsertagsRuleSerializable private constructor(
+data class UsertagsRuleSerializable private constructor(
     val id: Long,
     val combineWithAnd: Boolean,
     val tags: Set<String>,
@@ -20,7 +20,7 @@ internal data class UsertagsRuleSerializable private constructor(
         ShareSerializable(rule.share)
     )
 
-    override fun unpack(ml: MediaLibraryImpl): UsertagsRule {
+    override fun unpack(fs: FsTools): UsertagsRule {
         return UsertagsRule(
             share.unpack(),
             combineWithAnd,

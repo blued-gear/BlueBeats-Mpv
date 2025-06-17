@@ -15,10 +15,6 @@ version = "0.1.0"
 
 repositories {
     mavenCentral()
-
-    mavenLocal {
-        this.setUrl(rootProject.layout.projectDirectory.dir("../BluePlaylists/mavenrepo"))
-    }
 }
 
 kotlin {
@@ -63,9 +59,8 @@ kotlin {
     sourceSets {
         nativeMain.dependencies {
             implementation(project(":Taglib"))
+            implementation(project(":PlSerialization"))
 
-            implementation(libs.kotlinxSerializationJson)
-            implementation(libs.kotlinxSerializationJsonIo)
             implementation(libs.kotlinxIo)
         }
     }

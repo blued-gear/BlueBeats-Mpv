@@ -1,7 +1,8 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.views
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -9,11 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.GenericRule
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
+import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observerStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.ID3TagsRuleForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.RegexRuleForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.RuleGroupForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.UsertagsRuleForm
 import cafe.adriel.bonsai.core.Bonsai
 import cafe.adriel.bonsai.core.node.Branch
 import cafe.adriel.bonsai.core.node.Leaf
@@ -42,8 +46,8 @@ private fun editViewStateKey(isGeneralSettingsSelected: Boolean, rule: GenericRu
 @Composable
 internal fun EditView() {
     Row(
-        modifier = Modifier.safeContentPadding().fillMaxSize(),
-        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.safeContentPadding().fillMaxSize().padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val isGeneralSettingsSelected = remember { mutableStateOf(true) }
@@ -55,14 +59,14 @@ internal fun EditView() {
         }
 
         Column(
-            modifier = Modifier.safeContentPadding().fillMaxHeight().fillMaxWidth(0.3f),
+            modifier = Modifier.safeContentPadding().fillMaxHeight().fillMaxWidth(0.4f),
             verticalArrangement = Arrangement.Top
         ) {
             RuleTree(isGeneralSettingsSelected, selectedRule)
         }
-        Spacer(Modifier.width(8.dp))
+        VerticalDivider()
         Column(
-            modifier = Modifier.safeContentPadding().wrapContentSize().fillMaxHeight(),
+            modifier = Modifier.safeContentPadding().wrapContentSize().fillMaxHeight().padding(vertical = 12.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
@@ -107,14 +111,15 @@ private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedR
 
 @Composable
 fun addRuleToTree(tree: TreeScope, rule: GenericRule, nameOverwrite: String? = null) {
+    val name = nameOverwrite ?: "${rule.name} [${rule::class.simpleName}]"
     if(rule is RuleGroup) {
-        tree.Branch(rule, customName = { Text(nameOverwrite ?: rule::class.simpleName!!) }) {
+        tree.Branch(rule, customName = { Text(name) }) {
             rule.getRules().forEach { (child, _) ->
                 addRuleToTree(this, child)
             }
         }
     } else {
-        tree.Leaf(rule, customName = { Text(nameOverwrite ?: rule::class.simpleName!!) })
+        tree.Leaf(rule, customName = { Text(name) })
     }
 }
 
@@ -125,6 +130,12 @@ private fun GeneralSettings(): FormFinalizer {
 
 @Composable
 private fun RuleForm(rule: GenericRule): FormFinalizer? {
-    Text("FORM PANE")
-    return null
+    //TODO handle 'negate' attribute
+    return when(rule) {
+        is RuleGroup -> RuleGroupForm(rule, rule !== LoadedFile.rootGroup)
+        is ID3TagsRule -> ID3TagsRuleForm(rule)
+        is RegexRule -> RegexRuleForm(rule)
+        is UsertagsRule -> UsertagsRuleForm(rule)
+        else -> null
+    }
 }

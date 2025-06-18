@@ -3,6 +3,7 @@ package apps.chocolatecakecodes.bluebeats.mpv.media
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaLibrary
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.misc.ID3TagType
 import apps.chocolatecakecodes.bluebeats.mpv.taglib.TagParser
 import apps.chocolatecakecodes.bluebeats.mpv.utils.Logger
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -25,18 +26,12 @@ internal class MediaLibraryImpl(
         private const val FILES_CHUNK_SIZE: Int = 32
     }
 
-    object TagFieldNames {
-        const val TITLE = "title"
-        const val ARTIST = "artist"
-        const val GENRE = "genre"
-    }
-
     var rootDir: MediaDir? = null
         private set
 
     private val allFiles = mutableListOf<MediaFile>()
     /** Map<tagType, Map<tagValue, files>> */
-    private val filesById3Tag: MutableMap<String, MutableMap<String, MutableList<MediaFile>>> = mutableMapOf()
+    private val filesById3Tag: MutableMap<ID3TagType, MutableMap<String, MutableList<MediaFile>>> = mutableMapOf()
     private val filesByUsertag: MutableMap<String, MutableList<MediaFile>> = mutableMapOf()
     private val indexLock = Mutex()// only for protecting concurrent writes
 
@@ -59,7 +54,11 @@ internal class MediaLibraryImpl(
     }
 
     override fun findFilesWithId3Tag(type: String, value: String): Sequence<MediaFile> {
-        return filesById3Tag.get(type)?.get(value)?.asSequence() ?: emptySequence()
+        val typeValue = ID3TagType.entries.find { it.name == type } ?: let {
+            Logger.warn("MediaLibrary::findFilesWithId3Tag", "unknown type: $type")
+            return emptySequence()
+        }
+        return filesById3Tag.get(typeValue)?.get(value)?.asSequence() ?: emptySequence()
     }
 
     override fun findFilesWithUsertags(tags: List<String>): Map<MediaFile, List<String>> {
@@ -123,9 +122,9 @@ internal class MediaLibraryImpl(
             allFiles.add(file)
 
             file.mediaTags.let { tags ->
-                tags.title?.let { putFileInId3tagIndex(TagFieldNames.TITLE, it, file) }
-                tags.artist?.let { putFileInId3tagIndex(TagFieldNames.ARTIST, it, file) }
-                tags.genre?.let { putFileInId3tagIndex(TagFieldNames.GENRE, it, file) }
+                tags.title?.let { putFileInId3tagIndex(ID3TagType.TITLE, it, file) }
+                tags.artist?.let { putFileInId3tagIndex(ID3TagType.ARTIST, it, file) }
+                tags.genre?.let { putFileInId3tagIndex(ID3TagType.GENRE, it, file) }
             }
 
             file.userTags.forEach { tag ->
@@ -134,7 +133,7 @@ internal class MediaLibraryImpl(
         }
     }
 
-    private fun putFileInId3tagIndex(tagType: String, tagValue: String, file: MediaFile) {
+    private fun putFileInId3tagIndex(tagType: ID3TagType, tagValue: String, file: MediaFile) {
         filesById3Tag.getOrPut(tagType, { mutableMapOf() })
             .getOrPut(tagValue, { mutableListOf() })
             .add(file)

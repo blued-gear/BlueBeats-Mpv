@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 @ConsistentCopyVisibility
 data class UsertagsRuleSerializable private constructor(
     val id: Long,
+    val name: String,
     val combineWithAnd: Boolean,
     val tags: Set<String>,
     val share: ShareSerializable,
@@ -15,6 +16,7 @@ data class UsertagsRuleSerializable private constructor(
 
     constructor(rule: UsertagsRule) : this(
         rule.id,
+        rule.name,
         rule.combineWithAnd,
         rule.getTags(),
         ShareSerializable(rule.share)
@@ -25,7 +27,8 @@ data class UsertagsRuleSerializable private constructor(
             share.unpack(),
             combineWithAnd,
             true,
-            id
+            id,
+            name
         ).apply {
             this@UsertagsRuleSerializable.tags.forEach { addTag(it) }
         }

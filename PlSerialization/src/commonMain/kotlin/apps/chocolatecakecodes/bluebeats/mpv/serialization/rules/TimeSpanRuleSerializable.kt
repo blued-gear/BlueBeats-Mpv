@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 @ConsistentCopyVisibility
 data class TimeSpanRuleSerializable private constructor(
     val id: Long,
+    val name: String,
     val file: String,
     val startMs: Long,
     val endMs: Long,
@@ -21,6 +22,7 @@ data class TimeSpanRuleSerializable private constructor(
 
     constructor(rule: TimeSpanRule, fs: FsTools) : this(
         rule.id,
+        rule.name,
         fs.relativizePath(rule.file),
         rule.startMs,
         rule.endMs,
@@ -41,7 +43,8 @@ data class TimeSpanRuleSerializable private constructor(
             startMs,
             endMs,
             description,
-            share.unpack()
+            share.unpack(),
+            name
         )
     }
 }

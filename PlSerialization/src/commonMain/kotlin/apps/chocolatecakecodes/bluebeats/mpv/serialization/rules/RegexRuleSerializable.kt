@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 @ConsistentCopyVisibility
 data class RegexRuleSerializable private constructor(
     val id: Long,
+    val name: String,
     val attribute: RegexRule.Attribute,
     val regex: String,
     val share: ShareSerializable,
@@ -15,6 +16,7 @@ data class RegexRuleSerializable private constructor(
 
     constructor(rule: RegexRule) : this(
         rule.id,
+        rule.name,
         rule.attribute,
         rule.regex,
         ShareSerializable(rule.share)
@@ -26,7 +28,8 @@ data class RegexRuleSerializable private constructor(
             true,
             attribute,
             regex,
-            share.unpack()
+            share.unpack(),
+            name
         )
     }
 }

@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 @ConsistentCopyVisibility
 data class RuleGroupSerializable private constructor(
     val id: Long,
+    val name: String,
     val share: ShareSerializable,
     val combineWithAnd: Boolean,
     val rules: List<RuleGroupItem>
@@ -29,6 +30,7 @@ data class RuleGroupSerializable private constructor(
 
     constructor(rule: RuleGroup, fs: FsTools) : this(
         rule.id,
+        rule.name,
         ShareSerializable(rule.share),
         rule.combineWithAnd,
         rule.getRules().map { RuleGroupItem(rule = packRule(it.first, fs), negate = it.second) }
@@ -38,6 +40,7 @@ data class RuleGroupSerializable private constructor(
         id,
         true,
         share.unpack(),
+        name,
         combineWithAnd,
         rules.map { Pair(it.rule.unpack(fs), it.negate) }
     )

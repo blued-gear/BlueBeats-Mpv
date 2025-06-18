@@ -8,8 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Rule
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
+import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Share
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.SimpleMediaDir
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.DynPl
@@ -56,7 +56,8 @@ private fun onClickNew(onContinue: () -> Unit): SaverResultLauncher {
         val rootGroup = RuleGroup(
             1,
             true,
-            Rule.Share(-1f, true),
+            Share(-1f, true),
+            "root",
             false
         )
 

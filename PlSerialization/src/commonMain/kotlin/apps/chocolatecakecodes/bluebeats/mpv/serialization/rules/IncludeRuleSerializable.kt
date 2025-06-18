@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 @ConsistentCopyVisibility
 data class IncludeRuleSerializable private constructor(
     val id: Long,
+    val name: String,
     val dirs: List<Pair<String, Boolean>>,
     val files: List<String>,
     val share: ShareSerializable,
@@ -19,6 +20,7 @@ data class IncludeRuleSerializable private constructor(
 
     constructor(rule: IncludeRule, fs: FsTools) : this(
         rule.id,
+        rule.name,
         rule.getDirs().map { Pair(fs.relativizePath(it.first), it.second) },
         rule.getFiles().map { fs.relativizePath(it) },
         ShareSerializable(rule.share)
@@ -40,6 +42,6 @@ data class IncludeRuleSerializable private constructor(
             }
         }.toSet()
 
-        return IncludeRule(id, true, resolvedDirs, resolvedFiles, share.unpack())
+        return IncludeRule(id, true, share.unpack(), resolvedDirs, resolvedFiles, name)
     }
 }

@@ -1,6 +1,6 @@
 package apps.chocolatecakecodes.bluebeats.mpv.serialization.rules
 
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Rule
+import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Share
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,7 +10,7 @@ data class ShareSerializable private constructor(
     val isRelative: Boolean
 ) {
 
-    constructor(share: Rule.Share) : this(share.value, share.isRelative)
+    constructor(share: Share) : this(share.value, share.isRelative)
 
-    fun unpack(): Rule.Share = Rule.Share(value, isRelative)
+    fun unpack(): Share = Share(value, isRelative)
 }

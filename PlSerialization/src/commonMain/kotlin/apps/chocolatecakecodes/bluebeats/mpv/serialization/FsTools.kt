@@ -8,6 +8,8 @@ class FsTools(
     private val rootDir: MediaDir,
 ) {
 
+    private val rootPath = rootDir.path.let { if(it.endsWith('/')) it else "$it/" }
+
     fun resolvePath(path: String): MediaNode? {
         return path.split('/').fold(rootDir as MediaNode?) { dir, name ->
             dir?.castToOrNull<MediaDir>()?.let {
@@ -18,6 +20,7 @@ class FsTools(
     }
 
     fun relativizePath(node: MediaNode): String {
-        return node.path.removePrefix(rootDir.path).removePrefix("/")
+        val path = if(node is MediaDir) node.path.let { if(it.endsWith('/')) it else "$it/" } else node.path
+        return path.removePrefix(rootPath).removePrefix("/")
     }
 }

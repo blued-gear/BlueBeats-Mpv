@@ -1,6 +1,8 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.views
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -14,10 +16,7 @@ import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observerStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.ID3TagsRuleForm
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.RegexRuleForm
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.RuleGroupForm
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.UsertagsRuleForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.*
 import cafe.adriel.bonsai.core.Bonsai
 import cafe.adriel.bonsai.core.node.Branch
 import cafe.adriel.bonsai.core.node.Leaf
@@ -45,6 +44,8 @@ private fun editViewStateKey(isGeneralSettingsSelected: Boolean, rule: GenericRu
 
 @Composable
 internal fun EditView() {
+    val scrollState = rememberScrollState()
+
     Row(
         modifier = Modifier.safeContentPadding().fillMaxSize().padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -66,7 +67,10 @@ internal fun EditView() {
         }
         VerticalDivider()
         Column(
-            modifier = Modifier.safeContentPadding().wrapContentSize().fillMaxHeight().padding(vertical = 12.dp),
+            modifier = Modifier.safeContentPadding()
+                .padding(vertical = 12.dp)
+                .fillMaxWidth().fillMaxHeight()
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
@@ -136,6 +140,7 @@ private fun RuleForm(rule: GenericRule): FormFinalizer? {
         is ID3TagsRule -> ID3TagsRuleForm(rule)
         is RegexRule -> RegexRuleForm(rule)
         is UsertagsRule -> UsertagsRuleForm(rule)
+        is IncludeRule -> IncludeRuleForm(rule)
         else -> null
     }
 }

@@ -49,6 +49,7 @@ kotlin {
 
             implementation(libs.filekit.dialogs.compose)
             implementation(libs.bonsai.core)
+            implementation(libs.sonner)
         }
     }
 }

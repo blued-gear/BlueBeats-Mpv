@@ -11,13 +11,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
-internal fun ModifiableStringList(values: SnapshotStateList<String>) {
+internal fun ModifiableStringList(values: SnapshotStateList<String>, newItemFactory: suspend () -> String? = { "" }) {
+    val factoryCoroutineScope = rememberCoroutineScope()
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -26,7 +30,8 @@ internal fun ModifiableStringList(values: SnapshotStateList<String>) {
                 TextField(
                     value = str,
                     onValueChange = { values[idx] = it },
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier.padding(end = 12.dp).weight(1.0f),
+                    singleLine = true,
                 )
                 IconButton(
                     onClick = { values.removeAt(idx) }
@@ -41,7 +46,11 @@ internal fun ModifiableStringList(values: SnapshotStateList<String>) {
 
         IconButton(
             modifier = Modifier.padding(top = 8.dp),
-            onClick = { values.add("") }
+            onClick = {
+                factoryCoroutineScope.launch {
+                    newItemFactory()?.let { values.add(it) }
+                }
+            }
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,

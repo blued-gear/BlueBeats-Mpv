@@ -12,8 +12,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun LabeledRadioButton(label: String, selected: Boolean, enabled: Boolean = true, onSelect: () -> Unit) {
-    Row(modifier = Modifier.selectable(
+internal fun LabeledRadioButton(label: String, selected: Boolean, enabled: Boolean = true, modifier: Modifier = Modifier, onSelect: () -> Unit) {
+    Row(modifier = modifier.selectable(
         role = Role.RadioButton,
         enabled = enabled,
         selected = selected,

@@ -17,12 +17,12 @@ import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFil
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
-import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.SimpleMediaDir
-import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.SimpleMediaFile
+import apps.chocolatecakecodes.bluebeats.mpv.editor.media.FsTools
+import apps.chocolatecakecodes.bluebeats.mpv.editor.media.SimpleMediaDir
+import apps.chocolatecakecodes.bluebeats.mpv.editor.media.SimpleMediaFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledCheckbox
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableStringList
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
-import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import com.dokar.sonner.*
 import io.github.vinceglb.filekit.*
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
@@ -38,7 +38,7 @@ internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
-    val fsTools = remember { FsTools(SimpleMediaDir(LoadedFile.pl.mediaRoot)) }
+    val fsTools = remember { FsTools(LoadedFile.mediaLib.rootDir) }
     val dirs = remember { rule.getDirs().toMutableStateList() }
     val files = remember { rule.getFiles().map { "./" + fsTools.relativizePath(it) }.toMutableStateList() }
     val lastPickerDir = remember { mutableStateOf(PlatformFile(LoadedFile.pl.mediaRoot)) }

@@ -52,6 +52,7 @@ internal fun GeneralSettingsForm(): () -> Unit {
     }
 
     return {
-        LoadedFile.pl = LoadedFile.pl.copy(mediaRoot = mediaRoot.text.toString(), iterationSize = iterationSize.value)
+        LoadedFile.setMediaRootPath(mediaRoot.text.toString())
+        LoadedFile.updatePl { it.copy(iterationSize = iterationSize.value) }
     }
 }

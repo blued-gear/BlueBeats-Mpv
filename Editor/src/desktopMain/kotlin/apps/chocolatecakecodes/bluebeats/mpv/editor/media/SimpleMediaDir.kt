@@ -1,4 +1,4 @@
-package apps.chocolatecakecodes.bluebeats.mpv.editor.utils
+package apps.chocolatecakecodes.bluebeats.mpv.editor.media
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
@@ -7,16 +7,18 @@ import kotlin.io.path.Path
 import kotlin.io.path.name
 
 internal class SimpleMediaDir(
-    override val path: String
+    override val path: String,
+    private val dirs: List<MediaDir> = emptyList(),
+    private val files: List<MediaFile> = emptyList(),
 ) : MediaDir() {
 
     override val name: String = Path(path).name
     override val id: Long = UNSPECIFIED_NODE_ID
     override val parent: MediaNode? = null
 
-    override fun getDirs(): List<MediaDir> = emptyList()
+    override fun getDirs(): List<MediaDir> = dirs
 
-    override fun getFiles(): List<MediaFile> = emptyList()
+    override fun getFiles(): List<MediaFile> = files
 
     override fun findChild(name: String): MediaNode? = null
 

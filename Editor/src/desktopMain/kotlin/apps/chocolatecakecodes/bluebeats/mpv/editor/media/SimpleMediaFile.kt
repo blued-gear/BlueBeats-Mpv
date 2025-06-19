@@ -1,4 +1,4 @@
-package apps.chocolatecakecodes.bluebeats.mpv.editor.utils
+package apps.chocolatecakecodes.bluebeats.mpv.editor.media
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode

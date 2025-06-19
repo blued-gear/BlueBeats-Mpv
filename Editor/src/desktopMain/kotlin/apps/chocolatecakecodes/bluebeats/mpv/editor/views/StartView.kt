@@ -7,15 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
-import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.Share
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
-import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.SimpleMediaDir
-import apps.chocolatecakecodes.bluebeats.mpv.serialization.DynPl
-import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
-import apps.chocolatecakecodes.bluebeats.mpv.serialization.Serializer
-import apps.chocolatecakecodes.bluebeats.mpv.serialization.rules.RuleGroupSerializable
+import com.dokar.sonner.*
 import io.github.vinceglb.filekit.absoluteFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -24,14 +17,14 @@ import io.github.vinceglb.filekit.dialogs.compose.SaverResultLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.path
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.decodeFromStream
-import java.io.FileInputStream
 
 @Composable
 internal fun StartView(onContinue: () -> Unit) {
+    val toaster = rememberToasterState()
     val onClickNewHandler = onClickNew(onContinue)
-    val onClickOpenHandler = onClickOpen(onContinue)
+    val onClickOpenHandler = onClickOpen(toaster, onContinue)
+
+    Toaster(toaster, alignment = Alignment.TopEnd)
 
     Row(
         modifier = Modifier.safeContentPadding().fillMaxSize(),
@@ -53,29 +46,13 @@ private fun onClickNew(onContinue: () -> Unit): SaverResultLauncher {
     return rememberFileSaverLauncher { file ->
         if(file == null) return@rememberFileSaverLauncher
 
-        val rootGroup = RuleGroup(
-            1,
-            true,
-            Share(-1f, true),
-            "root",
-            false
-        )
-
-        LoadedFile.filePath = file.absoluteFile().path
-        LoadedFile.rootGroup = rootGroup
-        LoadedFile.pl = DynPl(
-            "",
-            50,
-            RuleGroupSerializable(rootGroup, FsTools(MediaNode.UNSPECIFIED_DIR))
-        )
-
+        LoadedFile.initEmpty(file.absoluteFile().path)
         onContinue()
     }
 }
 
 @Composable
-@OptIn(ExperimentalSerializationApi::class)
-private fun onClickOpen(onContinue: () -> Unit): PickerResultLauncher {
+private fun onClickOpen(toaster: ToasterState, onContinue: () -> Unit): PickerResultLauncher {
     return rememberFilePickerLauncher(
         title = "Open DynPl File",
         mode = FileKitMode.Single,
@@ -84,17 +61,12 @@ private fun onClickOpen(onContinue: () -> Unit): PickerResultLauncher {
         if(file == null) return@rememberFilePickerLauncher
 
         try {
-            FileInputStream(file.file).use { inp ->
-                val pl = Serializer.json.decodeFromStream<DynPl>(inp)
-                LoadedFile.filePath = file.absoluteFile().path
-                LoadedFile.pl = pl
-                LoadedFile.rootGroup = pl.rootRule.unpack(FsTools(SimpleMediaDir(pl.mediaRoot)))
-
-                onContinue()
-            }
+            LoadedFile.load(file.absoluteFile().path)
+            onContinue()
         } catch(e: Exception) {
             e.printStackTrace()
-            //TODO show in UI
+            toaster.show("Unable to load file\n${e.localizedMessage}",
+                type = ToastType.Error, duration = ToasterDefaults.DurationLong)
         }
     }
 }

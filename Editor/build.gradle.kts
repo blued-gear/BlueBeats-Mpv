@@ -2,7 +2,6 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
@@ -50,6 +49,7 @@ kotlin {
             implementation(libs.filekit.dialogs.compose)
             implementation(libs.bonsai.core)
             implementation(libs.sonner)
+            implementation(libs.mp3agic)
         }
     }
 }

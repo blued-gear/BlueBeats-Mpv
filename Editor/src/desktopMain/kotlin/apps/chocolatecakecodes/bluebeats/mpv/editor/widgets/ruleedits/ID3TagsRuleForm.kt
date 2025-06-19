@@ -19,6 +19,9 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelect
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.misc.ID3TagType
 
+/**
+ * @return callback to be called when changes should be applied to LoadedFile
+ */
 @Composable
 internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
@@ -42,7 +45,7 @@ internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
 
         SimpleDropdownSelect(
             "Tag type",
-            ID3TagType.entries.minus(ID3TagType.INVALID).toSet(),
+            ID3TagType.entries.minus(ID3TagType.INVALID),
             tagType,
             itemTitle = { it.description }
         )

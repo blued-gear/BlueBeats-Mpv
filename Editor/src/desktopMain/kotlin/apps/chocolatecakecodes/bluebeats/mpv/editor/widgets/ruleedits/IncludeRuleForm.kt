@@ -13,8 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
-import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
-import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.IncludeRule
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.media.FsTools
@@ -30,8 +28,10 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.pathString
 
+/**
+ * @return callback to be called when changes should be applied to LoadedFile
+ */
 @Composable
 internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
     val toaster = rememberToasterState()
@@ -92,7 +92,7 @@ internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
                 }
 
                 lastPickerDir.value = file.parent()!!
-                return@ModifiableStringList mediaNodeToStr(SimpleMediaFile(file.path), fsTools)
+                return@ModifiableStringList fsTools.mediaNodeToText(SimpleMediaFile(file.path))
             }
         }
     }
@@ -106,7 +106,7 @@ internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
 
         // toSet() is necessary to prevent modifying the list which is currently iterated
         rule.getFiles().toSet().forEach { rule.removeFile(it) }
-        files.map { strToMediaFile(it) }.forEach { rule.addFile(it) }
+        files.map { fsTools.textToMediaFile(it) }.forEach { rule.addFile(it) }
     }
 }
 
@@ -138,8 +138,8 @@ private fun DirList(dirs: SnapshotStateList<Pair<MediaDir, Boolean>>, fsTools: F
         dirs.forEachIndexed { idx, (dir, recursive) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextField(
-                    value = mediaNodeToStr(dir, fsTools),
-                    onValueChange = { dirs[idx] = Pair(strToMediaDir(it), recursive) },
+                    value = fsTools.mediaNodeToText(dir),
+                    onValueChange = { dirs[idx] = Pair(fsTools.textToMediaDir(it), recursive) },
                     modifier = Modifier.padding(end = 12.dp).weight(1.0f),
                     singleLine = true,
                 )
@@ -167,16 +167,4 @@ private fun DirList(dirs: SnapshotStateList<Pair<MediaDir, Boolean>>, fsTools: F
             )
         }
     }
-}
-
-private fun mediaNodeToStr(node: MediaNode, fsTools: FsTools): String {
-    return "./" + fsTools.relativizePath(node)
-}
-
-private fun strToMediaDir(str: String): MediaDir {
-    return SimpleMediaDir(Path(LoadedFile.pl.mediaRoot, str).absolute().normalize().pathString)
-}
-
-private fun strToMediaFile(str: String): MediaFile {
-    return SimpleMediaFile(Path(LoadedFile.pl.mediaRoot, str).absolute().normalize().pathString)
 }

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
-import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observerStateChange
+import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observeStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.*
 import cafe.adriel.bonsai.core.Bonsai
@@ -55,7 +55,7 @@ internal fun EditView() {
         val selectedRule = remember { mutableStateOf<GenericRule?>(null) }
         val formFinalizer = remember { mutableStateOf(KeyedFinalizer("", null)) }
 
-        observerStateChange(formFinalizer) { old, new ->
+        observeStateChange(formFinalizer) { old, new ->
             old.finalizer?.invoke()
         }
 
@@ -141,6 +141,6 @@ private fun RuleForm(rule: GenericRule): FormFinalizer? {
         is RegexRule -> RegexRuleForm(rule)
         is UsertagsRule -> UsertagsRuleForm(rule)
         is IncludeRule -> IncludeRuleForm(rule)
-        else -> null
+        is TimeSpanRule -> TimeSpanRuleForm(rule)
     }
 }

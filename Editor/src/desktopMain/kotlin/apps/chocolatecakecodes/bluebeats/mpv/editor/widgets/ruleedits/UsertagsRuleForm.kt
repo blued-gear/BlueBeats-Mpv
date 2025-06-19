@@ -16,6 +16,9 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledRadioButton
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableStringList
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 
+/**
+ * @return callback to be called when changes should be applied to LoadedFile
+ */
 @Composable
 internal fun UsertagsRuleForm(rule: UsertagsRule): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }

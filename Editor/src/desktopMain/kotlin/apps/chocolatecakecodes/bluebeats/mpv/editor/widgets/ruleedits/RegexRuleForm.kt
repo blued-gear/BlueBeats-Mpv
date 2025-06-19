@@ -16,6 +16,9 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelect
 import java.util.regex.PatternSyntaxException
 
+/**
+ * @return callback to be called when changes should be applied to LoadedFile
+ */
 @Composable
 internal fun RegexRuleForm(rule: RegexRule): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
@@ -40,7 +43,7 @@ internal fun RegexRuleForm(rule: RegexRule): () -> Unit {
 
         SimpleDropdownSelect(
             "Attribute",
-            RegexRule.Attribute.entries.toSet(),
+            RegexRule.Attribute.entries,
             attribute,
             itemTitle = { it.name.lowercase() }
         )

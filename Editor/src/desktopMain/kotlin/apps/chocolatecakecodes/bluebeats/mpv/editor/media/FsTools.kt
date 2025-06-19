@@ -1,6 +1,7 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.media
 
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaDir
+import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaFile
 import apps.chocolatecakecodes.bluebeats.blueplaylists.interfaces.media.MediaNode
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.FsTools
 import kotlin.io.path.Path
@@ -18,5 +19,17 @@ internal class FsTools(rootDir: MediaDir) : FsTools(rootDir) {
             SimpleMediaDir(resolvedPath.pathString)
         else
             SimpleMediaFile(resolvedPath.pathString)
+    }
+
+    fun mediaNodeToText(node: MediaNode): String {
+        return "./" + relativizePath(node)
+    }
+
+    fun textToMediaDir(text: String): MediaDir {
+        return SimpleMediaDir(Path(rootPath, text).absolute().normalize().pathString)
+    }
+
+    fun textToMediaFile(text: String): MediaFile {
+        return SimpleMediaFile(Path(rootPath, text).absolute().normalize().pathString)
     }
 }

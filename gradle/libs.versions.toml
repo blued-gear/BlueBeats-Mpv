@@ -12,6 +12,7 @@ androidx-lifecycle = "2.9.0"
 filekit = "0.10.0-beta04"
 bonsai = "1.2.0"
 sonner = "0.3.8"
+mp3agic = "0.9.1"
 
 [libraries]
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -26,6 +27,7 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 filekit-coil = { module = "io.github.vinceglb:filekit-coil", version.ref = "filekit" }
 bonsai-core = { module = "cafe.adriel.bonsai:bonsai-core", version.ref = "bonsai" }
 sonner = { module = "io.github.dokar3:sonner", version.ref = "sonner" }
+mp3agic = { module = "com.mpatric:mp3agic", version.ref = "mp3agic" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.ID3TagsRule
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableStringList
+import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableWidgetList
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SearchableDropdownEdit
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelect
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.misc.ID3TagType
@@ -29,6 +31,7 @@ internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
     val tagType = remember { mutableStateOf(ID3TagType.valueOf(rule.tagType)) }
     val tagValues = remember { rule.getTagValues().toMutableStateList() }
+    val availableTags by remember { derivedStateOf { LoadedFile.mediaLib.existingId3Tags[tagType.value]!!.sorted() } }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -57,7 +60,19 @@ internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
                 .border(1.dp, MaterialTheme.colorScheme.onSurface)
                 .padding(all = 8.dp)
         ) {
-            ModifiableStringList(tagValues)
+            ModifiableWidgetList(
+                tagValues,
+                { "" }
+            ) { tag, idx, modifier ->
+                SearchableDropdownEdit(
+                    "",
+                    availableTags,
+                    tag,
+                    modifier = modifier,
+                ) {
+                    tagValues[idx] = it
+                }
+            }
         }
     }
 

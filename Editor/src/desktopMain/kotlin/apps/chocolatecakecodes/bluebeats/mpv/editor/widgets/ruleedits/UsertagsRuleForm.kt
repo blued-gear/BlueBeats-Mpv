@@ -12,8 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.UsertagsRule
+import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledRadioButton
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableStringList
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableWidgetList
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SearchableDropdownEdit
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 
 /**
@@ -21,6 +23,7 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
  */
 @Composable
 internal fun UsertagsRuleForm(rule: UsertagsRule): () -> Unit {
+    val availableUsertags = remember { LoadedFile.mediaLib.existingUsertags.sorted() }
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
@@ -56,7 +59,19 @@ internal fun UsertagsRuleForm(rule: UsertagsRule): () -> Unit {
                 .border(1.dp, MaterialTheme.colorScheme.onSurface)
                 .padding(all = 8.dp)
         ) {
-            ModifiableStringList(tags)
+            ModifiableWidgetList(
+                tags,
+                { "" }
+            ) { tag, idx, modifier ->
+                SearchableDropdownEdit(
+                    "",
+                    availableUsertags,
+                    tag,
+                    modifier = modifier,
+                ) {
+                    tags[idx] = it
+                }
+            }
         }
     }
 

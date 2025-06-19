@@ -15,6 +15,10 @@ internal object Logger : Logger {
         platformLogger.warning("$tag: $message")
     }
 
+    fun warn(tag: String, message: String, throwable: Throwable) {
+        platformLogger.log(Level.WARNING, "$tag: $message", throwable)
+    }
+
     override fun error(tag: String, message: String) {
         platformLogger.severe("$tag: $message")
     }

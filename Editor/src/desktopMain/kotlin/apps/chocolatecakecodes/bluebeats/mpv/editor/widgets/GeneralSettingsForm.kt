@@ -52,7 +52,9 @@ internal fun GeneralSettingsForm(): () -> Unit {
     }
 
     return {
-        LoadedFile.setMediaRootPath(mediaRoot.text.toString())
+        val rootPath = mediaRoot.text.toString()
+        if(rootPath != LoadedFile.pl.mediaRoot)
+            LoadedFile.setMediaRootPath(rootPath)
         LoadedFile.updatePl { it.copy(iterationSize = iterationSize.value) }
     }
 }

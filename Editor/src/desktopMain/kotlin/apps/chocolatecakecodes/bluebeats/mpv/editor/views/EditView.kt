@@ -1,14 +1,14 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.views
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -38,6 +38,12 @@ private class KeyedFinalizer(
     }
 }
 
+private class SelectedRule(
+    val rule: GenericRule,
+    val negated: MutableState<Boolean>,
+    val parent: RuleGroup?,
+)
+
 private fun editViewStateKey(isGeneralSettingsSelected: Boolean, rule: GenericRule?): String {
     return "$isGeneralSettingsSelected ; ${System.identityHashCode(rule)}"
 }
@@ -45,6 +51,7 @@ private fun editViewStateKey(isGeneralSettingsSelected: Boolean, rule: GenericRu
 @Composable
 internal fun EditView() {
     val scrollState = rememberScrollState()
+    val treeScrollState = rememberScrollState()
 
     Row(
         modifier = Modifier.safeContentPadding().fillMaxSize().padding(horizontal = 8.dp),
@@ -59,11 +66,20 @@ internal fun EditView() {
             old.finalizer?.invoke()
         }
 
-        Column(
+        Box(
             modifier = Modifier.safeContentPadding().fillMaxHeight().fillMaxWidth(0.4f),
-            verticalArrangement = Arrangement.Top
         ) {
-            RuleTree(isGeneralSettingsSelected, selectedRule)
+            Box(modifier = Modifier.fillMaxHeight(1f)
+                .padding(end = 12.dp, bottom = 12.dp)
+                .horizontalScroll(treeScrollState)
+                .widthIn(8.dp, 2048.dp)
+            ) {
+                RuleTree(isGeneralSettingsSelected, selectedRule)
+            }
+            HorizontalScrollbar(
+                adapter = rememberScrollbarAdapter(treeScrollState),
+                modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart).padding(end = 12.dp, bottom = 4.dp)
+            )
         }
         VerticalDivider()
         Column(
@@ -89,32 +105,51 @@ internal fun EditView() {
     }
 }
 
-object GeneralSettingsItem
+private object GeneralSettingsItem
 
 @Composable
 private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedRule: MutableState<SelectedRule?>) {
-    Tree<Any> {
-        Leaf(GeneralSettingsItem, customName = { Text("General Settings") })
-        addRuleToTree(this, LoadedFile.rootGroup, false, null, "Root RuleGroup")
-    }.let {
-        remember { it.expandAll() }
-        Bonsai(
-            it,
-            onClick = { node ->
-                if(node.content == GeneralSettingsItem) {
-                    isGeneralSettingsSelected.value = true
-                    selectedRule.value = null
-                } else {
-                    isGeneralSettingsSelected.value = false
-                    selectedRule.value = node.content as SelectedRule
+    val versionKey = remember { mutableStateOf(1) }
+    key(versionKey.value) {
+        Tree<Any> {
+            Leaf(GeneralSettingsItem, customName = { Text("General Settings") })
+            addRuleToTree(
+                this,
+                LoadedFile.rootGroup,
+                false,
+                null,
+                selectedRule,
+                versionKey,
+                "Root RuleGroup"
+            )
+        }.let {
+            remember { it.expandAll() }
+            Bonsai(
+                it,
+                onClick = { node ->
+                    if(node.content == GeneralSettingsItem) {
+                        isGeneralSettingsSelected.value = true
+                        selectedRule.value = null
+                    } else {
+                        isGeneralSettingsSelected.value = false
+                        selectedRule.value = node.content as SelectedRule
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
 @Composable
-fun addRuleToTree(tree: TreeScope, rule: GenericRule, negated: Boolean, parent: RuleGroup?, nameOverwrite: String? = null) {
+private fun addRuleToTree(
+    tree: TreeScope,
+    rule: GenericRule,
+    negated: Boolean,
+    parent: RuleGroup?,
+    selectedRule: MutableState<SelectedRule?>,
+    treeVersion: MutableState<Int>,
+    nameOverwrite: String? = null,
+) {
     val negatedState = remember { mutableStateOf(negated) }
     val entry = SelectedRule(rule, negatedState, parent)
     var name = nameOverwrite ?: "${rule.name} [${rule::class.simpleName}]"
@@ -122,13 +157,40 @@ fun addRuleToTree(tree: TreeScope, rule: GenericRule, negated: Boolean, parent: 
         name += " ⛔"
 
     if(rule is RuleGroup) {
-        tree.Branch(entry, customName = { Text(name) }) {
+        tree.Branch(entry, customName = { RuleTreeItem(name, rule, parent, selectedRule, treeVersion) }) {
             rule.getRules().forEach { (child, negated) ->
-                addRuleToTree(this, child, negated, rule)
+                addRuleToTree(this, child, negated, rule, selectedRule, treeVersion)
             }
         }
     } else {
-        tree.Leaf(entry, customName = { Text(name) })
+        tree.Leaf(entry, customName = { RuleTreeItem(name, rule, parent, selectedRule, treeVersion) })
+    }
+}
+
+@Composable
+private fun RuleTreeItem(
+    name: String,
+    rule: GenericRule,
+    parent: RuleGroup?,
+    selectedRule: MutableState<SelectedRule?>,
+    treeVersion: MutableState<Int>,
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(name)
+
+        if(parent != null) {
+            IconButton(
+                onClick = {
+                    if(rule == selectedRule.value?.rule) {
+                        selectedRule.value = SelectedRule(LoadedFile.rootGroup, mutableStateOf(false), null)
+                    }
+                    parent.removeRule(rule)
+                    treeVersion.value = treeVersion.value + 1
+                }
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = "delete rule")
+            }
+        }
     }
 }
 
@@ -155,9 +217,3 @@ private fun RuleForm(entry: SelectedRule): FormFinalizer? {
         is TimeSpanRule -> TimeSpanRuleForm(entry.rule, entry.negated)
     }
 }
-
-private class SelectedRule(
-    val rule: GenericRule,
-    val negated: MutableState<Boolean>,
-    val parent: RuleGroup?,
-)

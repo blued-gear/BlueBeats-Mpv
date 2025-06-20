@@ -1,18 +1,21 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.utils
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
+import androidx.compose.runtime.*
 
 /**
- * runs `block(oldState, newState)` whenever state changed (so not before first change)
+ * Runs `block(oldState, newState)` whenever state changed (so not before first change).
  */
 @Composable
 internal inline fun <T> observeStateChange(state: State<T>, crossinline block: (T, T) -> Unit) {
-    DisposableEffect(state.value) {
-        val lastValue = state.value
-        this.onDispose {
+    var expectedStateRef by remember { mutableStateOf(state) }
+    var lastValue by remember { mutableStateOf(state.value) }
+
+    LaunchedEffect(state.value, state) {
+        if(state === expectedStateRef) {
             block(lastValue, state.value)
+        } else {
+            expectedStateRef = state
         }
+        lastValue = state.value
     }
 }

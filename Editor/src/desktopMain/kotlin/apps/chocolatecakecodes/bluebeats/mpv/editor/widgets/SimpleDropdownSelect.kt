@@ -68,7 +68,7 @@ internal fun <T> SimpleDropdownSelectN(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { expanded = enabled && it },
     ) {
         TextField(
             value = selected.value?.let { itemTitle(it) } ?: "",

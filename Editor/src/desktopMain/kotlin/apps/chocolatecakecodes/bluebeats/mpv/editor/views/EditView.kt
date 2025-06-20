@@ -275,12 +275,14 @@ private fun RuleForm(entry: SelectedRule): FormFinalizer? {
         }
     }
 
-    return when(entry.rule) {
-        is RuleGroup -> RuleGroupForm(entry.rule, entry.negated, entry.rule !== LoadedFile.rootGroup)
-        is ID3TagsRule -> ID3TagsRuleForm(entry.rule, entry.negated)
-        is RegexRule -> RegexRuleForm(entry.rule, entry.negated)
-        is UsertagsRule -> UsertagsRuleForm(entry.rule, entry.negated)
-        is IncludeRule -> IncludeRuleForm(entry.rule, entry.negated)
-        is TimeSpanRule -> TimeSpanRuleForm(entry.rule, entry.negated)
+    return key(System.identityHashCode(entry.rule)) {
+        return@key when(entry.rule) {
+            is RuleGroup -> RuleGroupForm(entry.rule, entry.negated, entry.rule !== LoadedFile.rootGroup)
+            is ID3TagsRule -> ID3TagsRuleForm(entry.rule, entry.negated)
+            is RegexRule -> RegexRuleForm(entry.rule, entry.negated)
+            is UsertagsRule -> UsertagsRuleForm(entry.rule, entry.negated)
+            is IncludeRule -> IncludeRuleForm(entry.rule, entry.negated)
+            is TimeSpanRule -> TimeSpanRuleForm(entry.rule, entry.negated)
+        }
     }
 }

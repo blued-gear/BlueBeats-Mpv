@@ -2,6 +2,7 @@ package apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -45,19 +46,22 @@ internal fun RegexRuleForm(rule: RegexRule, negated: MutableState<Boolean>): () 
             onValueChange = { name = it },
             label = { Text("Name") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         SimpleDropdownSelect(
             "Attribute",
             RegexRule.Attribute.entries,
             attribute,
-            itemTitle = { it.name.lowercase() }
+            itemTitle = { it.name.lowercase() },
+            modifier = Modifier.fillMaxWidth(),
         )
 
         TextField(
             regex.value,
             label = { Text("Regex") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
             onValueChange = {
                 regex.value = it
 

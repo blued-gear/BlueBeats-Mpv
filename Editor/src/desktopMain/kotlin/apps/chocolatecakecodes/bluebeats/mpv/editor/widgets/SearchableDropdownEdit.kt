@@ -1,5 +1,6 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.widgets
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -29,7 +30,7 @@ internal fun SearchableDropdownEdit(
             value = value,
             label = { Text(label, fontWeight = FontWeight.Bold) },
             enabled = enabled,
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, fontWeight=  FontWeight.Light),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(

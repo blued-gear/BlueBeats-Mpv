@@ -61,6 +61,7 @@ internal fun IncludeRuleForm(rule: IncludeRule, negated: MutableState<Boolean>):
             onValueChange = { name = it },
             label = { Text("Name") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Text("Directories:")

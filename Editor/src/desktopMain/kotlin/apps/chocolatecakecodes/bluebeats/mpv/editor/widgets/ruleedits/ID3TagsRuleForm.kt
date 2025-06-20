@@ -46,13 +46,15 @@ internal fun ID3TagsRuleForm(rule: ID3TagsRule, negated: MutableState<Boolean>):
             onValueChange = { name = it },
             label = { Text("Name") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         SimpleDropdownSelect(
             "Tag type",
             ID3TagType.entries.minus(ID3TagType.INVALID),
             tagType,
-            itemTitle = { it.description }
+            itemTitle = { it.description },
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Text("Values:")

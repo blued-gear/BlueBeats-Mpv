@@ -43,6 +43,7 @@ internal fun UsertagsRuleForm(rule: UsertagsRule, negated: MutableState<Boolean>
             onValueChange = { name = it },
             label = { Text("Name") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Row(

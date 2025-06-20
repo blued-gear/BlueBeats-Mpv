@@ -1,5 +1,6 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.widgets
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ internal fun <T> SimpleDropdownSelect(
     label: String,
     options: List<T>,
     selected: MutableState<T>,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     itemTitle: (T) -> String = { it.toString() }
 ) {
@@ -22,12 +24,13 @@ internal fun <T> SimpleDropdownSelect(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
+        modifier = modifier,
     ) {
         TextField(
             value = itemTitle(selected.value),
             label = { Text(label, fontWeight = FontWeight.Bold) },
             enabled = enabled,
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             readOnly = true,
             onValueChange = {},
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, fontWeight=  FontWeight.Light),
@@ -61,6 +64,7 @@ internal fun <T> SimpleDropdownSelectN(
     label: String,
     options: List<T>,
     selected: MutableState<T?>,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     itemTitle: (T) -> String = { it.toString() }
 ) {
@@ -69,12 +73,13 @@ internal fun <T> SimpleDropdownSelectN(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = enabled && it },
+        modifier = modifier,
     ) {
         TextField(
             value = selected.value?.let { itemTitle(it) } ?: "",
             label = { Text(label, fontWeight = FontWeight.Bold) },
             enabled = enabled,
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             readOnly = true,
             onValueChange = {},
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, fontWeight=  FontWeight.Light),

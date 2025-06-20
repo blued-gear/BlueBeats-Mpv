@@ -1,9 +1,6 @@
 package apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.*
@@ -81,6 +78,7 @@ internal fun TimeSpanRuleForm(rule: TimeSpanRule, negated: MutableState<Boolean>
             onValueChange = { name = it },
             label = { Text("Name") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Row {
@@ -103,6 +101,7 @@ internal fun TimeSpanRuleForm(rule: TimeSpanRule, negated: MutableState<Boolean>
             onValueChange = { description = it },
             label = { Text("Description") },
             singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
         )
 
         NumberMsField(startMs, "Start (ms)")
@@ -113,7 +112,8 @@ internal fun TimeSpanRuleForm(rule: TimeSpanRule, negated: MutableState<Boolean>
             availableChapters,
             selectedChapter,
             enabled = availableChapters.isNotEmpty(),
-            itemTitle = { it.name }
+            itemTitle = { it.name },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 
@@ -134,6 +134,7 @@ private fun NumberMsField(value: MutableState<Long>, label: String) {
         value.value.toString(),
         label = { Text(label) },
         singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
         isError = invalid,
         onValueChange = { text: String ->
             val num = text.toLongOrNull()

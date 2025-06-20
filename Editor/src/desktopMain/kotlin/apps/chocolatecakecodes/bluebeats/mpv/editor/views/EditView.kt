@@ -52,7 +52,7 @@ internal fun EditView() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         val isGeneralSettingsSelected = remember { mutableStateOf(true) }
-        val selectedRule = remember { mutableStateOf<GenericRule?>(null) }
+        val selectedRule = remember { mutableStateOf<SelectedRule?>(null) }
         val formFinalizer = remember { mutableStateOf(KeyedFinalizer("", null)) }
 
         observeStateChange(formFinalizer) { old, new ->
@@ -82,7 +82,7 @@ internal fun EditView() {
             }
 
             formFinalizer.value = KeyedFinalizer(
-                editViewStateKey(isGeneralSettingsSelected.value, selectedRule.value),
+                editViewStateKey(isGeneralSettingsSelected.value, selectedRule.value?.rule),
                 finalizer
             )
         }
@@ -92,10 +92,10 @@ internal fun EditView() {
 object GeneralSettingsItem
 
 @Composable
-private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedRule: MutableState<GenericRule?>) {
+private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedRule: MutableState<SelectedRule?>) {
     Tree<Any> {
         Leaf(GeneralSettingsItem, customName = { Text("General Settings") })
-        addRuleToTree(this, LoadedFile.rootGroup, "Root RuleGroup")
+        addRuleToTree(this, LoadedFile.rootGroup, false, null, "Root RuleGroup")
     }.let {
         remember { it.expandAll() }
         Bonsai(
@@ -106,7 +106,7 @@ private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedR
                     selectedRule.value = null
                 } else {
                     isGeneralSettingsSelected.value = false
-                    selectedRule.value = node.content as GenericRule
+                    selectedRule.value = node.content as SelectedRule
                 }
             }
         )
@@ -114,16 +114,21 @@ private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedR
 }
 
 @Composable
-fun addRuleToTree(tree: TreeScope, rule: GenericRule, nameOverwrite: String? = null) {
-    val name = nameOverwrite ?: "${rule.name} [${rule::class.simpleName}]"
+fun addRuleToTree(tree: TreeScope, rule: GenericRule, negated: Boolean, parent: RuleGroup?, nameOverwrite: String? = null) {
+    val negatedState = remember { mutableStateOf(negated) }
+    val entry = SelectedRule(rule, negatedState, parent)
+    var name = nameOverwrite ?: "${rule.name} [${rule::class.simpleName}]"
+    if(negatedState.value)
+        name += " ⛔"
+
     if(rule is RuleGroup) {
-        tree.Branch(rule, customName = { Text(name) }) {
-            rule.getRules().forEach { (child, _) ->
-                addRuleToTree(this, child)
+        tree.Branch(entry, customName = { Text(name) }) {
+            rule.getRules().forEach { (child, negated) ->
+                addRuleToTree(this, child, negated, rule)
             }
         }
     } else {
-        tree.Leaf(rule, customName = { Text(name) })
+        tree.Leaf(entry, customName = { Text(name) })
     }
 }
 
@@ -133,14 +138,26 @@ private fun GeneralSettings(): FormFinalizer {
 }
 
 @Composable
-private fun RuleForm(rule: GenericRule): FormFinalizer? {
-    //TODO handle 'negate' attribute
-    return when(rule) {
-        is RuleGroup -> RuleGroupForm(rule, rule !== LoadedFile.rootGroup)
-        is ID3TagsRule -> ID3TagsRuleForm(rule)
-        is RegexRule -> RegexRuleForm(rule)
-        is UsertagsRule -> UsertagsRuleForm(rule)
-        is IncludeRule -> IncludeRuleForm(rule)
-        is TimeSpanRule -> TimeSpanRuleForm(rule)
+private fun RuleForm(entry: SelectedRule): FormFinalizer? {
+    if(entry.parent != null) {
+        observeStateChange(entry.negated) { old, new ->
+            if(old == new) return@observeStateChange
+            entry.parent.setRuleNegated(entry.rule, new)
+        }
+    }
+
+    return when(entry.rule) {
+        is RuleGroup -> RuleGroupForm(entry.rule, entry.negated, entry.rule !== LoadedFile.rootGroup)
+        is ID3TagsRule -> ID3TagsRuleForm(entry.rule, entry.negated)
+        is RegexRule -> RegexRuleForm(entry.rule, entry.negated)
+        is UsertagsRule -> UsertagsRuleForm(entry.rule, entry.negated)
+        is IncludeRule -> IncludeRuleForm(entry.rule, entry.negated)
+        is TimeSpanRule -> TimeSpanRuleForm(entry.rule, entry.negated)
     }
 }
+
+private class SelectedRule(
+    val rule: GenericRule,
+    val negated: MutableState<Boolean>,
+    val parent: RuleGroup?,
+)

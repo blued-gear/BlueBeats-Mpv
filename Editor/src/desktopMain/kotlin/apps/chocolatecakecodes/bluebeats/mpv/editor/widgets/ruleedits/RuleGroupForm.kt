@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RuleGroup
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledCheckbox
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledRadioButton
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 
@@ -20,7 +21,7 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun RuleGroupForm(rule: RuleGroup, allowEditShare: Boolean): () -> Unit {
+internal fun RuleGroupForm(rule: RuleGroup, negated: MutableState<Boolean>, allowEditShare: Boolean): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
@@ -30,6 +31,12 @@ internal fun RuleGroupForm(rule: RuleGroup, allowEditShare: Boolean): () -> Unit
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share, enabled = allowEditShare)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            enabled = allowEditShare,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.RegexRule
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledCheckbox
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelect
 import java.util.regex.PatternSyntaxException
@@ -20,7 +21,7 @@ import java.util.regex.PatternSyntaxException
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun RegexRuleForm(rule: RegexRule): () -> Unit {
+internal fun RegexRuleForm(rule: RegexRule, negated: MutableState<Boolean>): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
@@ -32,6 +33,11 @@ internal fun RegexRuleForm(rule: RegexRule): () -> Unit {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

@@ -17,6 +17,7 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.media.FsTools
 import apps.chocolatecakecodes.bluebeats.mpv.editor.media.SimpleMediaFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observeStateChange
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledCheckbox
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelectN
 import io.github.vinceglb.filekit.PlatformFile
@@ -29,7 +30,7 @@ import kotlin.io.path.pathString
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun TimeSpanRuleForm(rule: TimeSpanRule): () -> Unit {
+internal fun TimeSpanRuleForm(rule: TimeSpanRule, negated: MutableState<Boolean>): () -> Unit {
     val fsTools = remember { FsTools(LoadedFile.mediaLib.rootDir) }
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
@@ -68,6 +69,11 @@ internal fun TimeSpanRuleForm(rule: TimeSpanRule): () -> Unit {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

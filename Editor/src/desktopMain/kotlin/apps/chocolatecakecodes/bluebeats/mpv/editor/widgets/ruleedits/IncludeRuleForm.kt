@@ -33,7 +33,7 @@ import kotlin.io.path.absolute
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
+internal fun IncludeRuleForm(rule: IncludeRule, negated: MutableState<Boolean>): () -> Unit {
     val toaster = rememberToasterState()
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
@@ -49,6 +49,11 @@ internal fun IncludeRuleForm(rule: IncludeRule): () -> Unit {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

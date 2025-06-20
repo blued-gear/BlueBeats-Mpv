@@ -13,16 +13,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.UsertagsRule
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.LabeledRadioButton
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableWidgetList
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SearchableDropdownEdit
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.*
 
 /**
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun UsertagsRuleForm(rule: UsertagsRule): () -> Unit {
+internal fun UsertagsRuleForm(rule: UsertagsRule, negated: MutableState<Boolean>): () -> Unit {
     val availableUsertags = remember { LoadedFile.mediaLib.existingUsertags.sorted() }
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
@@ -34,6 +31,11 @@ internal fun UsertagsRuleForm(rule: UsertagsRule): () -> Unit {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

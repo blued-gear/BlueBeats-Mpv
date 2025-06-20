@@ -15,17 +15,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.ID3TagsRule
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ModifiableWidgetList
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SearchableDropdownEdit
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ShareForm
-import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.SimpleDropdownSelect
+import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.*
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.misc.ID3TagType
 
 /**
  * @return callback to be called when changes should be applied to LoadedFile
  */
 @Composable
-internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
+internal fun ID3TagsRuleForm(rule: ID3TagsRule, negated: MutableState<Boolean>): () -> Unit {
     val share = remember { mutableStateOf(rule.share) }
     val shareVal = rememberUpdatedState(share.value)
     var name by remember { mutableStateOf(TextFieldValue(rule.name)) }
@@ -37,6 +34,11 @@ internal fun ID3TagsRuleForm(rule: ID3TagsRule): () -> Unit {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ShareForm(share)
+        LabeledCheckbox(
+            "Negated",
+            negated.value,
+            onChange = { negated.value = it },
+        )
         HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
         TextField(

@@ -3,17 +3,16 @@ package apps.chocolatecakecodes.bluebeats.mpv.editor.views
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
+import apps.chocolatecakecodes.bluebeats.mpv.editor.media.SimpleMediaFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observeStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.*
@@ -61,9 +60,11 @@ internal fun EditView() {
         val isGeneralSettingsSelected = remember { mutableStateOf(true) }
         val selectedRule = remember { mutableStateOf<SelectedRule?>(null) }
         val formFinalizer = remember { mutableStateOf(KeyedFinalizer("", null)) }
+        val treeVersion = remember { mutableStateOf(1) }
 
         observeStateChange(formFinalizer) { old, new ->
             old.finalizer?.invoke()
+            treeVersion.value = treeVersion.value + 1
         }
 
         Box(
@@ -74,7 +75,7 @@ internal fun EditView() {
                 .horizontalScroll(treeScrollState)
                 .widthIn(8.dp, 2048.dp)
             ) {
-                RuleTree(isGeneralSettingsSelected, selectedRule)
+                RuleTree(isGeneralSettingsSelected, selectedRule, treeVersion)
             }
             HorizontalScrollbar(
                 adapter = rememberScrollbarAdapter(treeScrollState),
@@ -108,9 +109,12 @@ internal fun EditView() {
 private object GeneralSettingsItem
 
 @Composable
-private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedRule: MutableState<SelectedRule?>) {
-    val versionKey = remember { mutableStateOf(1) }
-    key(versionKey.value) {
+private fun RuleTree(
+    isGeneralSettingsSelected: MutableState<Boolean>,
+    selectedRule: MutableState<SelectedRule?>,
+    treeVersion: MutableState<Int>
+) {
+    key(treeVersion.value) {
         Tree<Any> {
             Leaf(GeneralSettingsItem, customName = { Text("General Settings") })
             addRuleToTree(
@@ -119,7 +123,7 @@ private fun RuleTree(isGeneralSettingsSelected: MutableState<Boolean>, selectedR
                 false,
                 null,
                 selectedRule,
-                versionKey,
+                treeVersion,
                 "Root RuleGroup"
             )
         }.let {
@@ -178,6 +182,69 @@ private fun RuleTreeItem(
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(name)
 
+        if(rule is RuleGroup) {
+            val addDropdownExpanded = remember { mutableStateOf(false) }
+            IconButton(onClick = { addDropdownExpanded.value = true }) {
+                Icon(
+                    Icons.Default.AddCircleOutline,
+                    contentDescription = "delete rule"
+                )
+            }
+            DropdownMenu(
+                expanded = addDropdownExpanded.value,
+                onDismissRequest = { addDropdownExpanded.value = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("RuleGroup") },
+                    onClick = {
+                        rule.addRule(RuleGroup(LoadedFile.getFreeId(), true, Share.even()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("ID3TagsRule") },
+                    onClick = {
+                        rule.addRule(ID3TagsRule(Share.even(), true,LoadedFile.getFreeId()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("RegexRule") },
+                    onClick = {
+                        rule.addRule(RegexRule(LoadedFile.getFreeId(), true, RegexRule.Attribute.TITLE, "", Share.even()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("UsertagsRule") },
+                    onClick = {
+                        rule.addRule(UsertagsRule(Share.even(), true, true, LoadedFile.getFreeId()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("IncludeRule") },
+                    onClick = {
+                        rule.addRule(IncludeRule(LoadedFile.getFreeId(), true, Share.even()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("TimeSpanRule") },
+                    onClick = {
+                        rule.addRule(TimeSpanRule(LoadedFile.getFreeId(), true, SimpleMediaFile(""), 0, 1, "", Share.even()), false)
+                        addDropdownExpanded.value = false
+                        treeVersion.value = treeVersion.value + 1
+                    }
+                )
+            }
+        }
+
         if(parent != null) {
             IconButton(
                 onClick = {
@@ -188,7 +255,7 @@ private fun RuleTreeItem(
                     treeVersion.value = treeVersion.value + 1
                 }
             ) {
-                Icon(Icons.Default.Delete, contentDescription = "delete rule")
+                Icon(Icons.Default.DeleteOutline, contentDescription = "delete rule")
             }
         }
     }

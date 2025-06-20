@@ -11,7 +11,9 @@ import apps.chocolatecakecodes.bluebeats.mpv.serialization.Serializer
 import apps.chocolatecakecodes.bluebeats.mpv.serialization.rules.RuleGroupSerializable
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import kotlin.math.max
 
 internal object LoadedFile {
@@ -64,6 +66,14 @@ internal object LoadedFile {
             return newMax
         }
         nextFreeId = maxId(0, rootGroup) + 1
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    fun save(path: String? = null) {
+        pl = pl.copy(rootRule = RuleGroupSerializable(rootGroup, FsTools(mediaLib.rootDir)))
+        FileOutputStream(path ?: filePath).use {
+            Serializer.json.encodeToStream(pl, it)
+        }
     }
 
     fun setMediaRootPath(mediaRootPath: String) {

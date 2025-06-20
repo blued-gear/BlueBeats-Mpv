@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.blueplaylists.playlist.dynamicplaylist.rules.*
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import apps.chocolatecakecodes.bluebeats.mpv.editor.media.SimpleMediaFile
+import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.Logger
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observeStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.*
@@ -21,6 +22,7 @@ import cafe.adriel.bonsai.core.node.Branch
 import cafe.adriel.bonsai.core.node.Leaf
 import cafe.adriel.bonsai.core.tree.Tree
 import cafe.adriel.bonsai.core.tree.TreeScope
+import com.dokar.sonner.*
 
 private typealias FormFinalizer = (() -> Unit)
 
@@ -49,59 +51,82 @@ private fun editViewStateKey(isGeneralSettingsSelected: Boolean, rule: GenericRu
 
 @Composable
 internal fun EditView() {
+    val toaster = rememberToasterState()
     val scrollState = rememberScrollState()
     val treeScrollState = rememberScrollState()
+    val formFinalizer = remember { mutableStateOf(KeyedFinalizer("", null)) }
+    val treeVersion = remember { mutableStateOf(1) }
 
-    Row(
-        modifier = Modifier.safeContentPadding().fillMaxSize().padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Toaster(toaster, alignment = Alignment.TopEnd)
+
+    Column(
+        modifier = Modifier.safeContentPadding().fillMaxSize().padding(horizontal = 8.dp)
     ) {
-        val isGeneralSettingsSelected = remember { mutableStateOf(true) }
-        val selectedRule = remember { mutableStateOf<SelectedRule?>(null) }
-        val formFinalizer = remember { mutableStateOf(KeyedFinalizer("", null)) }
-        val treeVersion = remember { mutableStateOf(1) }
-
-        observeStateChange(formFinalizer) { old, new ->
-            old.finalizer?.invoke()
-            treeVersion.value = treeVersion.value + 1
-        }
-
-        Box(
-            modifier = Modifier.safeContentPadding().fillMaxHeight().fillMaxWidth(0.4f),
+        Row(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(modifier = Modifier.fillMaxHeight(1f)
-                .padding(end = 12.dp, bottom = 12.dp)
-                .horizontalScroll(treeScrollState)
-                .widthIn(8.dp, 2048.dp)
+            val isGeneralSettingsSelected = remember { mutableStateOf(true) }
+            val selectedRule = remember { mutableStateOf<SelectedRule?>(null) }
+
+            observeStateChange(formFinalizer) { old, new ->
+                old.finalizer?.invoke()
+                treeVersion.value = treeVersion.value + 1
+            }
+
+            Box(
+                modifier = Modifier.safeContentPadding().fillMaxHeight().fillMaxWidth(0.4f),
             ) {
-                RuleTree(isGeneralSettingsSelected, selectedRule, treeVersion)
+                Box(
+                    modifier = Modifier.fillMaxHeight(1f)
+                        .padding(end = 12.dp, bottom = 12.dp)
+                        .horizontalScroll(treeScrollState)
+                        .widthIn(8.dp, 2048.dp)
+                ) {
+                    RuleTree(isGeneralSettingsSelected, selectedRule, treeVersion)
+                }
+                HorizontalScrollbar(
+                    adapter = rememberScrollbarAdapter(treeScrollState),
+                    modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart).padding(end = 12.dp, bottom = 4.dp)
+                )
             }
-            HorizontalScrollbar(
-                adapter = rememberScrollbarAdapter(treeScrollState),
-                modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart).padding(end = 12.dp, bottom = 4.dp)
-            )
-        }
-        VerticalDivider()
-        Column(
-            modifier = Modifier.safeContentPadding()
-                .padding(vertical = 12.dp)
-                .fillMaxWidth().fillMaxHeight()
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        ) {
-            var finalizer: FormFinalizer? = null
-            if(isGeneralSettingsSelected.value) {
-                finalizer = GeneralSettings()
-            } else if(selectedRule.value != null) {
-                finalizer = RuleForm(selectedRule.value!!)
-            }
+            VerticalDivider()
+            Column(
+                modifier = Modifier.safeContentPadding()
+                    .padding(vertical = 12.dp)
+                    .fillMaxWidth().fillMaxHeight()
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                var finalizer: FormFinalizer? = null
+                if(isGeneralSettingsSelected.value) {
+                    finalizer = GeneralSettings()
+                } else if(selectedRule.value != null) {
+                    finalizer = RuleForm(selectedRule.value!!)
+                }
 
-            formFinalizer.value = KeyedFinalizer(
-                editViewStateKey(isGeneralSettingsSelected.value, selectedRule.value?.rule),
-                finalizer
-            )
+                formFinalizer.value = KeyedFinalizer(
+                    editViewStateKey(isGeneralSettingsSelected.value, selectedRule.value?.rule),
+                    finalizer
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Button(
+                onClick = {
+                    formFinalizer.value.finalizer?.invoke()
+                    treeVersion.value = treeVersion.value + 1
+                    doSave(toaster)
+                }
+            ) {
+                Text("Save")
+            }
         }
     }
 }
@@ -284,5 +309,23 @@ private fun RuleForm(entry: SelectedRule): FormFinalizer? {
             is IncludeRule -> IncludeRuleForm(entry.rule, entry.negated)
             is TimeSpanRule -> TimeSpanRuleForm(entry.rule, entry.negated)
         }
+    }
+}
+
+private fun doSave(toaster: ToasterState) {
+    try {
+        LoadedFile.save()
+        toaster.show(
+            "Saved",
+            type = ToastType.Success,
+            duration = ToasterDefaults.DurationShort,
+        )
+    } catch(e: Exception) {
+        Logger.error("EditView", "unable to save file", e)
+        toaster.show(
+            "Error while saving file\n${e.localizedMessage}",
+            type = ToastType.Error,
+            duration = ToasterDefaults.DurationLong,
+        )
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import apps.chocolatecakecodes.bluebeats.mpv.editor.LoadedFile
 import com.dokar.sonner.*
 import io.github.vinceglb.filekit.absoluteFile
+import io.github.vinceglb.filekit.absolutePath
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.PickerResultLauncher
@@ -46,7 +47,7 @@ private fun onClickNew(onContinue: () -> Unit): SaverResultLauncher {
     return rememberFileSaverLauncher { file ->
         if(file == null) return@rememberFileSaverLauncher
 
-        LoadedFile.initEmpty(file.absoluteFile().path)
+        LoadedFile.initEmpty(file.absolutePath())
         onContinue()
     }
 }

@@ -46,6 +46,8 @@ bin/
 /.idea/dictionaries/
 /.idea/artifacts/
 
+/local.properties
+
 /container/media
 /container/plugins
 /container/log.txt

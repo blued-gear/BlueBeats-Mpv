@@ -14,6 +14,7 @@ repositories {
     mavenCentral()
 
     google {
+        @Suppress("UnstableApiUsage")
         mavenContent {
             includeGroupAndSubgroups("androidx")
             includeGroupAndSubgroups("com.android")
@@ -62,6 +63,20 @@ compose.desktop {
             targetFormats(TargetFormat.AppImage)
             packageName = "${project.group}.mpv.editor"
             packageVersion = project.version as String
+
+            linux {
+                // needed for FileKit
+                modules("jdk.security.auth")
+            }
+        }
+
+        buildTypes {
+            release {
+                proguard {
+                    //TODO fix problems in artifacts and re-enable
+                    isEnabled = false
+                }
+            }
         }
     }
 }

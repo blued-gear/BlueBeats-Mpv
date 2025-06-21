@@ -100,13 +100,18 @@ fun linkProj(target: KNativeBinary, project: String) {
         NativeBuildType.RELEASE -> "release"
         NativeBuildType.DEBUG -> "debug"
     }
+    val variantTaskName = when(target.buildType) {
+        NativeBuildType.RELEASE -> "Release"
+        NativeBuildType.DEBUG -> "Debug"
+    }
     val proj = project(project)
     val binDir = proj.layout.buildDirectory.dir("lib/main/$variant").get().asFile.absolutePath
 
     target.linkerOpts.add("-L$binDir")
     target.linkerOpts.add("-l${proj.name}")
 
-    tasks.getByName("link${when(target.buildType){NativeBuildType.RELEASE -> "Release"; NativeBuildType.DEBUG -> "Debug"}}SharedNative") {
+    tasks.getByName("link${variantTaskName}SharedNative") {
+        this.dependsOn("${proj.path}:assemble${variantTaskName}")
         this.inputs.file("$binDir/lib${proj.name}.a")
     }
 }

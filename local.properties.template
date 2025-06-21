@@ -1,0 +1,4 @@
+gitlab.host=<GitLab host>
+gitlab.projectId=<project id>
+gitlab.publish.password=<deploy_token password>
+gitlab.publish.username=<deploy_token username>

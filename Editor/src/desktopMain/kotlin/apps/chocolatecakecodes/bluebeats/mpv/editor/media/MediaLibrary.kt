@@ -85,7 +85,7 @@ internal class MediaLibrary(
                 existingUsertagsMut.addAll(tags)
             }
         } catch(e: Exception) {
-            Logger.warn("MediaLibrary::parseFile", "unable to read parse file ($path)", e)
+            Logger.warn("MediaLibrary::parseFile", "unable to read parse file ($path)", e, false)
         }
     }
 
@@ -127,7 +127,7 @@ internal class MediaLibrary(
                         return UserTags.Parser.parse(text).tags
                     }
                 } catch (e: Exception) {
-                    Logger.warn("MediaLibrary::readUsertags", "unable to decode TXXX frame (file: ${parser.filename})", e)
+                    Logger.warn("MediaLibrary::readUsertags", "unable to decode TXXX frame (file: ${parser.filename})", e, false)
                 }
             }
         }

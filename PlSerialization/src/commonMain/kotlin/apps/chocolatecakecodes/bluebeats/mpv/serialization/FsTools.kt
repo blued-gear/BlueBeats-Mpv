@@ -11,7 +11,7 @@ open class FsTools(
     protected val rootPath = rootDir.path.let { if(it.endsWith('/')) it else "$it/" }
 
     open fun resolvePath(path: String): MediaNode? {
-        return path.split('/').fold(rootDir as MediaNode?) { dir, name ->
+        return path.trim('/').split('/').fold(rootDir as MediaNode?) { dir, name ->
             dir?.castToOrNull<MediaDir>()?.let {
                 it.getDirs().find { it.name == name }
                     ?: it.getFiles().find { it.name == name }

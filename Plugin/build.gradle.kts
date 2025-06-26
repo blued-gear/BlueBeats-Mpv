@@ -34,7 +34,8 @@ kotlin {
         binaries {
             sharedLib {
                 val mpvIncludeDir = project.layout.buildDirectory.dir("deps/mpv/include").get().asFile.absolutePath
-                linkerOpts.add("-L$mpvIncludeDir")
+                // -Wl,--as-needed -> remove unneeded linkages, which includes libcrypt.so.1
+                linkerOpts.addAll(listOf("-L$mpvIncludeDir", "-Wl,--as-needed"))
 
                 linkProj(this, ":Taglib:TaglibCpp")
                 linkProj(this, ":Taglib:TaglibGlue")

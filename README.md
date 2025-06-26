@@ -19,9 +19,7 @@ If you want to use a bbdp file on an other computer than where it was created, a
 ### Plugin
 
 [Download](https://projects.chocolatecakecodes.goip.de/bluebeats/bluebeats-mpv/-/packages/22) the latest version
-and put the *.so* file in `~/.config/mpv/scripts/` (the directory might be different if you use a player which is based on mpv).
-Also you need to install a package which provides the legacy-binding `libcrypt.so.1` (needed by Kotlin Native).
-On Fedora this is `libxcrypt-compat`.\
+and put the *.so* file in `~/.config/mpv/scripts/` (the directory might be different if you use a player which is based on mpv).\
 When you open a bbdp file, the plugin will fill a playlist with items and start playback.
 Whenever the end of the list is reached, it will be regenerated.
 

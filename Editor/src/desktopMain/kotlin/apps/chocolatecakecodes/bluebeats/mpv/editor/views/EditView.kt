@@ -17,6 +17,7 @@ import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.Logger
 import apps.chocolatecakecodes.bluebeats.mpv.editor.utils.observeStateChange
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.GeneralSettingsForm
 import apps.chocolatecakecodes.bluebeats.mpv.editor.widgets.ruleedits.*
+import apps.chocolatecakecodes.bluebeats.mpv.serialization.misc.ID3TagType
 import cafe.adriel.bonsai.core.Bonsai
 import cafe.adriel.bonsai.core.node.Branch
 import cafe.adriel.bonsai.core.node.Leaf
@@ -212,7 +213,7 @@ private fun RuleTreeItem(
             IconButton(onClick = { addDropdownExpanded.value = true }) {
                 Icon(
                     Icons.Default.AddCircleOutline,
-                    contentDescription = "delete rule"
+                    contentDescription = "add rule"
                 )
             }
             DropdownMenu(
@@ -230,7 +231,10 @@ private fun RuleTreeItem(
                 DropdownMenuItem(
                     text = { Text("ID3TagsRule") },
                     onClick = {
-                        rule.addRule(ID3TagsRule(Share.even(), true,LoadedFile.getFreeId()), false)
+                        val newRule = ID3TagsRule(Share.even(), true,LoadedFile.getFreeId()).apply {
+                            this.tagType = ID3TagType.TITLE.name
+                        }
+                        rule.addRule(newRule, false)
                         addDropdownExpanded.value = false
                         treeVersion.value = treeVersion.value + 1
                     }

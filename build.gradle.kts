@@ -58,7 +58,7 @@ tasks.create("publishEditor") {
     doLast {
         val proj = project("Editor")
         val version = proj.version.toString()
-        val file = proj.layout.buildDirectory.file("compose/jars/apps.chocolatecakecodes.bluebeats.mpv.editor-linux-x64-$version.jar").get().asFile.absolutePath
+        val file = proj.layout.buildDirectory.file("compose/jars/apps.chocolatecakecodes.bluebeats.mpv.editor-linux-x64-$version-release.jar").get().asFile.absolutePath
         publishArtifact("Editor", version, "BlueBeats-Editor.jar", file)
     }
 }

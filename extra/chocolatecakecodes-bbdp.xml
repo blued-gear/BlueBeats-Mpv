@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="audio/x-bbdynpl">
+    <comment>BlueBeats Desktop Dynamic Playlist</comment>
+    <glob pattern="*.bbdp"/>
+    </mime-type>
+</mime-info>

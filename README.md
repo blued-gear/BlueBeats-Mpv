@@ -23,6 +23,12 @@ and put the *.so* file in `~/.config/mpv/scripts/` (the directory might be diffe
 When you open a bbdp file, the plugin will fill a playlist with items and start playback.
 Whenever the end of the list is reached, it will be regenerated.
 
+For some players it is necessary to register a MIME audio type. This will also allow you to associate a default player for bbdp files.
+To do this, follow these steps:
+1. download the `chocolatecakecodes-bbdp.xml` file from the `extra` directory in this repo
+2. run `xdg-mime install --mode user ./chocolatecakecodes-bbdp.xml`
+3. run `update-mime-database ~/.local/share/mime/`
+
 ### Editor
 
 [Download](https://projects.chocolatecakecodes.goip.de/bluebeats/bluebeats-mpv/-/packages/23) and run the Jar.
